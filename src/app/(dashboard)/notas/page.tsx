@@ -1,3 +1,5 @@
+'use client'
+
 import { NotasPage } from "@/features/notas/components/NotasPage";
 
 /**

@@ -1,3 +1,6 @@
+'use client'
+
+
 import { NotaFiscal as BaseNotaFiscal, NotaStatusEnum } from '@/features/notas/types';
 
 /**

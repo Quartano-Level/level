@@ -1,3 +1,5 @@
+'use client'
+
 import { createBrowserSupabaseClient } from "@/shared/lib/supabase";
 import {
   EmailCheckResponse,

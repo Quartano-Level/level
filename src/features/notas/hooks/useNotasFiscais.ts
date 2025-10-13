@@ -1,3 +1,5 @@
+'use client'
+
 import { useCallback, useState, useEffect, useRef } from 'react'
 import { NotaFiscal, NotasParams, NotaStatusEnum } from '../types'
 import axios, { CancelTokenSource } from 'axios'

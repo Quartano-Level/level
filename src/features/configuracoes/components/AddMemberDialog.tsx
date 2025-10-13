@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import * as Dialog from '@radix-ui/react-dialog';

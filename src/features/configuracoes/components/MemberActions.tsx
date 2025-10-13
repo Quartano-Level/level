@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/shared/components/ui/button";
 import { Edit, KeyRound, Mail, Trash2 } from "lucide-react";
 import { User } from "@supabase/supabase-js";

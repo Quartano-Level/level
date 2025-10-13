@@ -1,3 +1,5 @@
+'use client'
+
 import type { Metadata } from "next";
 import { Geologica, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/auth/hooks/useAuth";

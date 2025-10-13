@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/shared/components/ui/button";
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from "lucide-react";

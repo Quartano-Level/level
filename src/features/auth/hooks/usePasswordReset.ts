@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback } from "react"
 import { usePasswordService } from "./usePasswordService"
 import { createBrowserSupabaseClient } from "@/shared/lib/supabase"

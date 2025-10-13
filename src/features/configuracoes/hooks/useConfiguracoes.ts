@@ -1,3 +1,5 @@
+'use client'
+
 import { FormEvent, useEffect, useState, useCallback } from "react";
 import { User } from "@supabase/supabase-js";
 import { toast } from "sonner";

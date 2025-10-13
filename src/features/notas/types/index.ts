@@ -1,3 +1,4 @@
+'use client'
 
 /**
  * Representa uma nota fiscal no sistema

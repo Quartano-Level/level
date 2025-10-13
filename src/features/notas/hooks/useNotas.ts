@@ -1,3 +1,5 @@
+'use client'
+
 import { useRef } from "react";
 import { NotasParams } from "../types";
 import { NotasTableRef } from "../components/NotasTable";

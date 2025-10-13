@@ -1,3 +1,5 @@
+'use client'
+
 import { User } from "@supabase/supabase-js";
 import { getUserStatus, getStatusConfig } from "../utils/memberUtils";
 

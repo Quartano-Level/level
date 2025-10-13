@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useCallback } from "react";
 import { useHistoricoNotas } from "./useHistoricoNotas";
 import { NotaStatusEnum } from "../types";

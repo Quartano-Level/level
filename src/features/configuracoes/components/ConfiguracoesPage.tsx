@@ -1,3 +1,5 @@
+'use client'
+
 import { useConfiguracoes } from "../hooks/useConfiguracoes";
 import { MembrosSection } from "./MembrosSection";
 import { UserProfileCard } from "./UserProfileCard";
