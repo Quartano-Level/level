@@ -1,4 +1,3 @@
-'use client'
 
 import { createBrowserSupabaseClient, supabaseAdmin } from "@/shared/lib/supabase";
 import { User } from "@supabase/supabase-js";

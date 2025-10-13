@@ -1,4 +1,3 @@
-'use client'
 
 import { User } from "@supabase/supabase-js";
 import { MemberAddData, MemberUpdateData } from '../types';
