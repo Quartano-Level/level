@@ -96,7 +96,7 @@ export const getUserStatus = (user: User): 'confirmed' | 'pending' => {
 export const getStatusConfig = (status: 'confirmed' | 'pending') => {
   switch(status) {
     case 'confirmed':
-      return { bg: "bg-green-100", text: "text-green-800", label: "Confirmado" };
+      return { bg: "bg-orange-100", text: "text-orange-800", label: "Confirmado" };
     case 'pending':
       return { bg: "bg-yellow-100", text: "text-yellow-800", label: "Pendente" };
     default:

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Superia",
-  description: "Superia",
+  title: "Level",
+  description: "Level",
 };
 
 export default function RootLayout({

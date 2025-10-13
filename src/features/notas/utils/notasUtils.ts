@@ -52,7 +52,7 @@ export const getStatusConfig = (status: string) => {
     case "em_processamento":
       return { bg: "bg-blue-100", text: "text-blue-800", label: "Em processamento" };
     case "aprovado":
-      return { bg: "bg-green-100", text: "text-green-800", label: "Aprovado" };
+      return { bg: "bg-orange-100", text: "text-orange-800", label: "Aprovado" };
     case "recusado":
     case "reprovado":
     case "rejeitado":

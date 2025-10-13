@@ -26,8 +26,8 @@ export default function SetPassword() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
             <div className="mb-8">
                 <Image
-                    src="/logo.svg"
-                    alt="Logo Superia"
+                    src="/level.svg"
+                    alt="Logo Level"
                     width={160}
                     height={40}
                     priority
@@ -50,7 +50,7 @@ export default function SetPassword() {
                     )}
                     
                     {success ? (
-                        <div className="bg-green-50 text-green-600 p-3 rounded-md mb-4 text-center">
+                        <div className="bg-orange-50 text-orange-600 p-3 rounded-md mb-4 text-center">
                             Senha definida com sucesso! Redirecionando para o dashboard...
                         </div>
                     ) : (

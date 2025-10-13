@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Superia",
-  description: "Superia",
+  title: "Level",
+  description: "Level",
 };
 
-export default function SuperiaLayout({ children }: { children: React.ReactNode }) {
+export default function LevelLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex">
         <Sidebar />

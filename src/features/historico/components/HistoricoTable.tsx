@@ -86,8 +86,8 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
           label = "Em processamento";
           break;
         case "aprovado":
-          bgClass = "bg-green-100";
-          textClass = "text-green-800";
+          bgClass = "bg-orange-100";
+          textClass = "text-orange-800";
           label = "Aprovado";
           break;
         case "recusado":

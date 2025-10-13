@@ -85,7 +85,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 flex justify-center">
-          <Image src="/logo.svg" alt="Logo" width={200} height={200} />
+          <Image src="/level.svg" alt="Logo" width={200} height={200} />
         </div>
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold">Bem-vindo</h2>
@@ -127,7 +127,7 @@ export default function LoginPage() {
             />
             
             <div className="text-sm text-right">
-              <Link href="/send-reset-password" className="font-medium text-green-600 hover:text-green-500">
+              <Link href="/send-reset-password" className="font-medium text-orange-600 hover:text-orange-500">
                 Esqueceu sua senha?
               </Link>
             </div>
@@ -135,7 +135,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || Boolean(formErrors.email || formErrors.password)}
-              className="w-full py-2 px-4 rounded-md text-white font-medium bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              className="w-full py-2 px-4 rounded-md text-white font-medium bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>

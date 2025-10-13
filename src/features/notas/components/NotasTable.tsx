@@ -68,7 +68,7 @@ const RowActions = ({
             variant="outline"
             size="sm"
             onClick={() => onAccessPDF(nota)}
-            className="text-xs text-green-600 border-green-500 bg-white hover:bg-green-50 hover:text-green-700 hover:border-green-600 transition-all duration-200 cursor-pointer"
+            className="text-xs text-orange-600 border-orange-500 bg-white hover:bg-orange-50 hover:text-orange-700 hover:border-orange-600 transition-all duration-200 cursor-pointer"
           >
             Acessar PDF
           </Button>
@@ -87,7 +87,7 @@ const RowActions = ({
               variant="default"
               size="sm"
               onClick={() => onCorrect(nota)}
-              className="text-xs bg-green-500 text-white hover:bg-green-600 border-green-500 hover:border-green-600 transition-all duration-200 cursor-pointer"
+              className="text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500 hover:border-orange-600 transition-all duration-200 cursor-pointer"
             >
               Reprocessar
             </Button>

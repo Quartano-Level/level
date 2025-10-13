@@ -19,7 +19,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 flex justify-center">
-          <Image src="/logo.svg" alt="Logo" width={200} height={200} />
+          <Image src="/level.svg" alt="Logo" width={200} height={200} />
         </div>
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold">Recuperar senha</h2>
@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
             />
             
             {message && (
-              <div className={`text-sm ${message.includes('Erro') ? 'text-red-500' : 'text-green-500'}`}>
+              <div className={`text-sm ${message.includes('Erro') ? 'text-red-500' : 'text-orange-500'}`}>
                 {message}
               </div>
             )}
@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || Boolean(formErrors.email)}
-              className="w-full py-2 px-4 rounded-md text-white font-medium bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              className="w-full py-2 px-4 rounded-md text-white font-medium bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
             >
               {loading ? 'Enviando...' : 'Enviar link'}
             </button>

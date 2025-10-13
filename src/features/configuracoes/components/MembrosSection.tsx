@@ -236,7 +236,7 @@ export function MembrosSection({
                 {userIsAdmin && (
                     <Button 
                         variant="outline" 
-                        className="gap-1 rounded-full text-green-500 border border-green-500 hover:bg-green-50"
+                        className="gap-1 rounded-full text-orange-500 border border-orange-500 hover:bg-orange-50"
                         onClick={() => setIsDialogOpen(true)} 
                         disabled={loading}
                     >

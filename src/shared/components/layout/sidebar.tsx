@@ -62,7 +62,7 @@ export default function Sidebar() {
                 {/* Logo */}
                 <div className="flex items-center justify-center mt-12">
                     <Link href="/notas">
-                        <Image src="/logo.svg" alt="Superia" width={200} height={200} />
+                        <Image src="/level.svg" alt="Level" width={200} height={200} />
                     </Link>
                 </div>
 

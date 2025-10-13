@@ -4,8 +4,8 @@
 /* Definição das variáveis de tema: gera utilitários como bg-<nome>-500, text-<nome>-500, etc. */
 @theme {
   /* Paleta principal */
-  --color-primary: #42C583;
-  --color-secondary:  #093F2B;
+  --color-primary: #FF8C42;
+  --color-secondary:  #212121;
   --color-disable: #C0C0C0;
   --color-dark-gray:     #3D3D3D;
   --color-black:         #212121;
@@ -23,7 +23,7 @@
 
   /* Tokens de borda e foco */
   --color-border:        #E5E5E5;
-  --color-ring:          #42C583;
+  --color-ring:          #FF8C42;
 }
 
 @layer base {
