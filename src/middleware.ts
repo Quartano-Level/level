@@ -1,4 +1,3 @@
-"use client"
 
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/shared/utils/supabase/middleware'
