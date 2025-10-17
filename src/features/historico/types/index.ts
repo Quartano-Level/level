@@ -47,3 +47,12 @@ export interface HistoricoParams {
     sortField?: keyof HistoricoNota;
     sortDirection?: 'asc' | 'desc';
 } 
+
+export enum NotaStatusEnum {
+    PENDENTE = 'pendente',
+    EM_PROCESSAMENTO = 'em_processamento',
+    IDENTIFIED = 'identificada',
+    SAVED = 'saved',
+    ESCRITURADA = 'escriturada',
+    COMPLETA = 'completa',
+}
