@@ -171,7 +171,7 @@ export function HistoricoPage() {
                 <Button 
                   variant="link" 
                   className="text-primary ml-2"
-                  onClick={() => fetchNotas({ limit: 9, status: NotaStatusEnum.APROVADO })}
+                  onClick={() => fetchNotas({ limit: 9, status: NotaStatusEnum.ESCRITURADA })}
                 >
                   Tentar novamente
                 </Button>
