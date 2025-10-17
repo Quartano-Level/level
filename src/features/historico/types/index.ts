@@ -1,29 +1,58 @@
 'use client'
 
-
-import { NotaFiscal as BaseNotaFiscal, NotaStatusEnum } from '@/features/notas/types';
-
-/**
- * Exporte os tipos da feature de notas para uso na feature de histórico
- */
-export { NotaStatusEnum } from '@/features/notas/types';
-export type { SortConfig, NotaActionConfig, NotasParams } from '@/features/notas/types';
+export enum HistoricoStatusEnum {
+    COMPLETED = 'COMPLETED',
+    ESCRITURADA = 'ESCRITURADA',
+    PENDENTE = 'PENDENTE',
+    ERROR = 'ERROR'
+}
 
 /**
- * Define o histórico de status de uma nota fiscal
+ * Interface para uma nota fiscal no histórico
+ * Baseada na resposta da API https://superia-trading.app.n8n.cloud/webhook/nfs-pendentes
  */
-export type NotaStatusHistory = {
-    status: NotaStatusEnum;
-    data: string;
-    usuario: string;
-    motivo?: string;
-};
+export interface HistoricoNota {
+    numero: number;
+    created_at: string;
+    status: HistoricoStatusEnum | string;
+    updated_qive_date: string | null;
+    escriturada_date: string | null;
+    saved_date: string | null;
+    completed_date: string | null;
+    info: string;
+    attempts: number;
+    id_metrica: string;
+    qive_id: string;
+    emission_date: string;
+    identified_date: string | null;
+    error_date: string | null;
+    processing_started_date: string | null;
+    obs: string | null;
+    counterparty_cnpj: string;
+    filcod: number;
+    filCnpj: string;
+}
 
 /**
- * Define uma nota fiscal com histórico para uso na feature de histórico
+ * Configuração de ordenação
  */
-export interface NotaFiscal extends BaseNotaFiscal {
-    historico?: NotaStatusHistory[];
-    dataAprovacao?: string;
-    usuarioAprovador?: string;
+export interface SortConfig {
+    field: keyof HistoricoNota | null;
+    direction: 'asc' | 'desc';
+}
+
+export interface HistoricoParams {
+    page?: number;
+    searchTerm?: string;
+    sortField?: keyof HistoricoNota;
+    sortDirection?: 'asc' | 'desc';
 } 
+
+export enum NotaStatusEnum {
+    PENDENTE = 'pendente',
+    EM_PROCESSAMENTO = 'em_processamento',
+    IDENTIFIED = 'identificada',
+    SAVED = 'saved',
+    ESCRITURADA = 'escriturada',
+    COMPLETA = 'completa',
+}

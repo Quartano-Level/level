@@ -29,6 +29,7 @@ interface NotasTableProps {
     field: keyof NotaFiscal | null;
     direction: 'asc' | 'desc';
   };
+  reprocessingNotaId?: string | null;
 }
 
 export type NotasTableRef = {
@@ -54,11 +55,13 @@ const StatusBadge = ({ status }: { status: string }) => {
 const RowActions = ({ 
   nota, 
   onAccessPDF, 
-  onCorrect 
+  onCorrect,
+  isReprocessing
 }: { 
   nota: NotaFiscal; 
   onAccessPDF: (nota: NotaFiscal) => void;
   onCorrect: (nota: NotaFiscal) => void;
+  isReprocessing: boolean;
 }) => (
   <div className="flex space-x-2">
     <TooltipProvider>
@@ -87,13 +90,24 @@ const RowActions = ({
               variant="default"
               size="sm"
               onClick={() => onCorrect(nota)}
-              className="text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500 hover:border-orange-600 transition-all duration-200 cursor-pointer"
+              disabled={isReprocessing}
+              className="text-xs bg-green-500 text-white hover:bg-green-600 border-green-500 hover:border-green-600 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Reprocessar
+              {isReprocessing ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processando...
+                </span>
+              ) : (
+                "Reprocessar"
+              )}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Solicitar reprocessamento da nota</p>
+            <p>{isReprocessing ? "Processando solicitação..." : "Solicitar reprocessamento da nota"}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -165,7 +179,7 @@ const EmptyState = () => (
  * Componente de tabela para notas fiscais
  */
 export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
-  ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting }, ref) => {
+  ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting, reprocessingNotaId }, ref) => {
     // Expor funções para o componente pai
     useImperativeHandle(ref, () => ({
       handleFilterChange: () => {},
@@ -217,6 +231,7 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
                     nota={nota}
                     onAccessPDF={onAccessPDF}
                     onCorrect={onCorrect}
+                    isReprocessing={reprocessingNotaId === nota.id}
                   />
                 </TableCell>
               </TableRow>

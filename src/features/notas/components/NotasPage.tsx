@@ -38,6 +38,7 @@ export function NotasPage() {
   } = useNotas();
 
   const [sortField, setSortField] = useState("mais_recente");
+  const [reprocessingNota, setReprocessingNota] = useState<string | null>(null);
 
   const handleSortChange = (value: string) => {
     setSortField(value);
@@ -62,9 +63,18 @@ export function NotasPage() {
   };
   
   // Função para reprocessar a nota fiscal
-  const handleReprocessNota = (nota: NotaFiscal) => {
-    handleCorrectNota(nota, "Solicitação de reprocessamento");
-  };
+    const handleReprocessNota = async (nota: NotaFiscal) => {
+    // Prevenir múltiplos cliques
+      if (reprocessingNota) return;
+      
+      setReprocessingNota(nota.id);
+      
+      try {
+        await handleCorrectNota(nota, "Solicitação de reprocessamento");
+      } finally {
+        setReprocessingNota(null);
+      }
+    };
   
   return (
     <div className="w-full flex flex-col h-screen pt-12 pl-6 pr-16 pb-10 gap-6 overflow-hidden">
@@ -190,6 +200,7 @@ export function NotasPage() {
                 onCorrect={handleReprocessNota}
                 onSort={handleSort}
                 sorting={sorting}
+                reprocessingNotaId={reprocessingNota}
               />
             </div>
             

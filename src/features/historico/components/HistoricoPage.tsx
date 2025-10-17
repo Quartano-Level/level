@@ -3,60 +3,55 @@
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/shared/components/ui/select"
-import { Search, ChevronDown } from "lucide-react"
+import { Search, ChevronDown, RefreshCw } from "lucide-react"
 import { HistoricoTable } from "@/features/historico/components/HistoricoTable"
 import { useHistoricoNotas } from "@/features/historico/hooks/useHistoricoNotas"
 import { Pagination } from "@/shared/components/common/pagination"
-import { NotaFiscal, NotaStatusEnum } from "../types"
-import { useEffect, useState } from "react"
+import { HistoricoNota } from "../types"
+import { useState } from "react"
 
 /**
- * Componente principal da página de notas fiscais
+ * Componente principal da página de histórico de notas fiscais
  */
 export function HistoricoPage() {
-  // Utilizar o hook para gerenciar o estado
   const {
     notas,
     loading,
     error,
-    searchTerm,
     page,
     totalPages,
+    totalItems,
+    searchTerm,
+    sortConfig,
     handleSearch,
-    handlePageChange,
     handleSort,
-    getNotaPDF,
-    sorting,
-    fetchNotas
-  } = useHistoricoNotas({ limit: 9 });
+    handlePageChange,
+    reload
+  } = useHistoricoNotas();
 
   const [sortField, setSortField] = useState("mais_recente");
 
-  // *** CORREÇÃO PRINCIPAL: Handler correto para o input ***
+  /**
+   * Handler para mudança no input de busca
+   */
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    console.log('Input value:', value); // Debug log
-    handleSearch(value); // Passa apenas o valor, não o evento
+    handleSearch(value);
   };
 
-  // Adaptador para acessar PDF
-  const handleAccessPDF = (nota: NotaFiscal) => {
-    if (nota.id) {
-      getNotaPDF(nota);
-    }
-  };
-
-  // Função para lidar com mudança de ordenação
+  /**
+   * Handler para mudança de ordenação no select
+   */
   const handleSortChange = (value: string) => {
     setSortField(value);
     
-    // Mapeamento dos valores do select para os campos reais da interface NotaFiscal
-    const fieldMapping: Record<string, keyof NotaFiscal> = {
-      "data_da_nota": "data_emissao",
-      "fornecedor": "cnpj_prestador",
-      "numero_de_nota": "numero_nf", 
-      "valor": "valor_total",
+    // Mapeamento dos valores do select para os campos da interface
+    const fieldMapping: Record<string, keyof HistoricoNota> = {
+      "numero": "numero",
       "status": "status",
+      "data_emissao": "emission_date",
+      "data_criacao": "created_at",
+      "cnpj": "counterparty_cnpj",
       "mais_recente": "created_at"
     };
     
@@ -67,20 +62,26 @@ export function HistoricoPage() {
     }
   };
 
-  // Efeito para monitorar erros e recarregar se necessário
-  useEffect(() => {
-    if (error) {
-      console.error("Erro ao carregar notas:", error);
-    }
-  }, [error]);
-
   return (
     <div className="w-full flex flex-col h-screen pt-12 pl-6 pr-16 pb-10 gap-6 overflow-hidden">
       <div className="flex flex-col gap-3 flex-1 overflow-hidden">
         <div className="flex flex-col gap-2 flex-1 overflow-hidden rounded-lg">
-          <h2 className="text-xl font-medium text-secondary mx-4 mt-4">
-            Notas fiscais
-          </h2>
+          <div className="flex items-center justify-between mx-4 mt-4">
+            <h2 className="text-xl font-medium text-secondary">
+              Histórico de Notas Fiscais
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={reload}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+              Recarregar
+            </Button>
+          </div>
+
           <div className="flex items-center justify-between px-4 pb-4">
             <div className="relative">
               <Search
@@ -89,10 +90,11 @@ export function HistoricoPage() {
               />
               <Input
                 type="text"
-                placeholder="Pesquisar por fornecedor"
-                className="pl-12 min-w-[275px] h-9 py-5 bg-white rounded-[17px] border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Pesquisar por número, CNPJ ou observação"
+                className="pl-12 min-w-[350px] h-9 py-5 bg-white rounded-[17px] border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={searchTerm}
-                onChange={handleSearchInput} // *** CORREÇÃO: Usar o handler correto ***
+                onChange={handleSearchInput}
+                disabled={loading}
               />
             </div>
 
@@ -114,12 +116,12 @@ export function HistoricoPage() {
                   className="w-[180px] bg-white rounded-lg shadow-lg border"
                 >
                   {[
-                    { label: "Data da nota", value: "data_da_nota" },
-                    { label: "Fornecedor", value: "fornecedor" },
-                    { label: "Numero de nota", value: "numero_de_nota" },
-                    { label: "Valor", value: "valor" },
+                    { label: "Número", value: "numero" },
                     { label: "Status", value: "status" },
-                    { label: "Mais recente", value: "mais_recente" }
+                    { label: "Data de Emissão", value: "data_emissao" },
+                    { label: "Data de Criação", value: "data_criacao" },
+                    { label: "CNPJ", value: "cnpj" },
+                    { label: "Mais Recente", value: "mais_recente" }
                   ].map((field) => (
                     <SelectItem
                       key={field.value}
@@ -139,13 +141,12 @@ export function HistoricoPage() {
               <HistoricoTable
                 notas={notas}
                 loading={loading}
-                onAccessPDF={handleAccessPDF}
                 onSort={handleSort}
-                sorting={sorting}
+                sorting={sortConfig}
               />
             </div>
 
-            {!loading && notas && notas.length > 0 && totalPages > 1 && (
+            {!loading && notas.length > 0 && totalPages > 1 && (
               <div className="mt-2 mb-4">
                 <Pagination
                   currentPage={page}
@@ -156,7 +157,7 @@ export function HistoricoPage() {
               </div>
             )}
 
-            {!loading && notas && notas.length === 0 && !error && (
+            {!loading && notas.length === 0 && !error && (
               <div className="text-center py-8 text-gray-500">
                 {searchTerm ? 
                   `Nenhuma nota fiscal encontrada para "${searchTerm}".` : 
@@ -167,14 +168,20 @@ export function HistoricoPage() {
 
             {error && !loading && (
               <div className="text-center py-4 text-red-500">
-                Ocorreu um erro ao carregar as notas fiscais. 
+                Ocorreu um erro ao carregar o histórico: {error}
                 <Button 
                   variant="link" 
                   className="text-primary ml-2"
-                  onClick={() => fetchNotas({ limit: 9, status: NotaStatusEnum.ESCRITURADA })}
+                  onClick={reload}
                 >
                   Tentar novamente
                 </Button>
+              </div>
+            )}
+
+            {!loading && !error && totalItems > 0 && (
+              <div className="text-center py-2 text-sm text-gray-500">
+                Exibindo {notas.length} de {totalItems} notas fiscais
               </div>
             )}
           </div>
