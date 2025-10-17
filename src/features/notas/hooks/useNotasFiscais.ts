@@ -15,6 +15,7 @@ interface SortConfig {
 
 // URL base da API
 const API_URL = 'https://level-nfse.app.n8n.cloud/webhook/nfs-pendentes';
+const REPROCESS_API_URL = 'https://level-nfse.app.n8n.cloud/webhook/2549b8a5-a9e0-4855-a8c1-cbe6b9a2db4e/nfs-pendentes';
 
 
 
@@ -332,32 +333,31 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     // Função para reprocessar uma nota
     const handleCorrectNota = useCallback(async (nota: NotaFiscal, motivo: string) => {
         try {
-            //const token = getAuthToken();
             const headers = {
-                //'Authorization': token ? `Bearer ${token}` : '',
-                'Content-Type': 'application/json'
-            };
-            
-            await axios.post(`https://level-nfse.app.n8n.cloud/webhook/d05b419f-9c13-4bb9-91f3-0ac11d535a76/nfs-pendentes/${nota.numero_nf}/retry`, 
-                { motivo },
-                { headers }
-                //https://level-nfse.app.n8n.cloud/webhook-test/d05b419f-9c13-4bb9-91f3-0ac11d535a76/nfs-pendentes/corrigir/:id
-            );
-            
-            toast.success(`Nota fiscal ${nota.numero_nf} enviada para reprocessamento.`);
-            
-            // Recarregar as notas
-            await filterNotas({
-                status: getStatusParam(activeFilter),
-                fornecedor: searchTerm || undefined,
-            });
-            
-            return true;
-        } catch (error) {
-            toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero_nf}.`);
-            return false;
-        }
-    }, [getAuthToken, filterNotas, activeFilter, searchTerm]);
+                'Content-Type': 'application/json',
+      };
+
+      await axios.post(`${REPROCESS_API_URL}/${nota.numero_nf}/retry`,
+            { motivo },
+            { headers }
+      );
+
+      toast.success(`Nota fiscal ${nota.numero_nf} enviada para reprocessamento.`);
+
+      // Recarregar as notas
+      await filterNotas({
+        status: getStatusParam(activeFilter),
+        fornecedor: searchTerm || undefined,
+      });
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao reprocessar nota:', error);
+        toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero_nf}.`);
+        return false;
+    }
+},[filterNotas, activeFilter, searchTerm]);
+
     
     return {
         notas,

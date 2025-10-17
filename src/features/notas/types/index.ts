@@ -72,6 +72,8 @@ export interface NotaActionConfig {
 export enum NotaStatusEnum {
     PENDENTE = 'pendente',
     EM_PROCESSAMENTO = 'em_processamento',
-    APROVADO = 'aprovado',
-    RECUSADO = 'recusado'
+    IDENTIFIED = 'identificada',
+    SAVED = 'saved',
+    ESCRITURADA = 'escriturada',
+    COMPLETA = 'completa',
 }
