@@ -71,10 +71,10 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
             let url = API_URL;
             
             // Adicionar apenas status e ordenação - NÃO fornecedor, limit, offset
-            const status = params.status || NotaStatusEnum.APROVADO;
+            const status = params.status || NotaStatusEnum.ESCRITURADA;
             const statusValue = status === NotaStatusEnum.PENDENTE ? 'pendente' : 
                               status === NotaStatusEnum.EM_PROCESSAMENTO ? 'em_processamento' : 
-                              status === NotaStatusEnum.APROVADO ? 'aprovado' :
+                              status === NotaStatusEnum.ESCRITURADA ? 'escriturada' :
                               status;
             url = `${url}?status=${statusValue}`;
             
@@ -190,7 +190,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
     // Efeito para carregar as notas iniciais
     useEffect(() => {
         filterNotas({
-            status: NotaStatusEnum.APROVADO,
+            status: NotaStatusEnum.ESCRITURADA,
             limit: initialParams.limit || 9
         });
         
@@ -220,7 +220,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         if (term.trim() === '') {
             console.log('🧹 Campo vazio, buscando todas as notas');
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.ESCRITURADA,
                 page: 1,
                 fornecedor: undefined,
                 limit: initialParams.limit || 9
@@ -232,7 +232,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         debounceTimeoutRef.current = setTimeout(() => {
             console.log('⏰ Executando busca com debounce para:', term);
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.ESCRITURADA,
                 page: 1,
                 fornecedor: term,
                 limit: initialParams.limit || 9
@@ -257,7 +257,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         // Tentar ordenação via API primeiro (se houver termo de busca)
         if (searchTerm) {
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.ESCRITURADA,
                 sort: field as string,
                 order: direction,
                 page: 1,
