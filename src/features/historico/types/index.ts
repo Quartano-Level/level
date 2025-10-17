@@ -40,3 +40,10 @@ export interface SortConfig {
     field: keyof HistoricoNota | null;
     direction: 'asc' | 'desc';
 }
+
+export interface HistoricoParams {
+    page?: number;
+    searchTerm?: string;
+    sortField?: keyof HistoricoNota;
+    sortDirection?: 'asc' | 'desc';
+} 
