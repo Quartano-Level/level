@@ -114,9 +114,9 @@ export function UserProfileCard({ currentUser, email, members = [] }: UserProfil
 
                         <div className="flex flex-col items-center gap-3 w-full mt-2">
                             <div className="flex flex-col justify-center text-sm mb-1 w-full">
-                                <span className="text-campos font-light text-sm">{email || "email@superia.com"}</span>
+                                <span className="text-campos font-light text-sm">{email || "email@level.com"}</span>
                                 <button
-                                    className="text-green-500 text-xs font-medium flex items-center gap-1 cursor-pointer"
+                                    className="text-orange-500 text-xs font-medium flex items-center gap-1 cursor-pointer"
                                     onClick={() => setEditEmailDialogOpen(true)}
                                 >
                                     <Edit size={12} />
@@ -128,7 +128,7 @@ export function UserProfileCard({ currentUser, email, members = [] }: UserProfil
                             <div className="flex flex-col justify-center text-sm w-full">
                                 <span className="text-campos font-light text-sm">Senha</span>
                                 <button
-                                    className="text-green-500 text-xs font-medium flex items-center gap-1 cursor-pointer"
+                                    className="text-orange-500 text-xs font-medium flex items-center gap-1 cursor-pointer"
                                     onClick={() => setEditPasswordDialogOpen(true)}
                                 >
                                     <Key size={12} />

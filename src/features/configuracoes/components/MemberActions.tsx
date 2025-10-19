@@ -48,7 +48,7 @@ export function MemberActions({
               disabled={loading}
               title="Editar"
             >
-              <Edit size={16} className="text-green-500" />
+              <Edit size={16} className="text-orange-500" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>

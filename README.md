@@ -1,4 +1,4 @@
-# Superia - Aplicação Next.js com Autenticação Supabase
+# Level - Aplicação Next.js com Autenticação Supabase
 
 Uma aplicação moderna construída com Next.js, TypeScript e Supabase para autenticação.
 
@@ -42,8 +42,8 @@ asdf install
 ### 2. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/superia.git
-cd superia
+git clone https://github.com/seu-usuario/level.git
+cd level
 ```
 
 ### 3. Instale as dependências

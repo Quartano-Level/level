@@ -13,6 +13,7 @@ interface SortConfig {
 
 // URL base da API
 const API_URL = 'https://level-nfse.app.n8n.cloud/webhook/nfs-pendentes';
+const API_URL_HISTORICO = "https://level-nfse.app.n8n.cloud/webhook/nfs-pendentes/historico"
 
 // Número fixo de itens por página
 const ITEMS_PER_PAGE = 9;
@@ -41,8 +42,8 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
     const cancelTokenRef = useRef<CancelTokenSource | null>(null);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
-    // Obter o token de autenticação
-    const { getAuthToken } = useAuth();
+    // Obter o token de autenticação e estado de carregamento da sessão
+    const { getAuthToken, loading: authLoading } = useAuth();
 
     // Função para validar dados das notas (mesma do useNotasFiscais)
     const isValidNotasData = (data: any[]): data is NotaFiscal[] => {
@@ -68,15 +69,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
             };
             
             // *** CORREÇÃO: Buscar TODOS os dados sem limit/offset (como useNotasFiscais) ***
-            let url = API_URL;
-            
-            // Adicionar apenas status e ordenação - NÃO fornecedor, limit, offset
-            const status = params.status || NotaStatusEnum.APROVADO;
-            const statusValue = status === NotaStatusEnum.PENDENTE ? 'pendente' : 
-                              status === NotaStatusEnum.EM_PROCESSAMENTO ? 'em_processamento' : 
-                              status === NotaStatusEnum.APROVADO ? 'aprovado' :
-                              status;
-            url = `${url}?status=${statusValue}`;
+            let url = API_URL_HISTORICO;
             
             // Adicionar ordenação se existir
             if (params.sort) {
@@ -134,7 +127,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         const term = searchTerm.toLowerCase().trim();
         return data.filter(nota => {
             // Filtrar por CNPJ do prestador (fornecedor)
-            const cnpj = nota.cnpj_prestador?.toLowerCase() || '';
+            const cnpj = nota.filCnpj?.toLowerCase() || '';
             
             return cnpj.includes(term);
         });
@@ -187,13 +180,15 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         }
     }, [fetchNotasFromAPI, paginateData, filterDataLocally]);
 
-    // Efeito para carregar as notas iniciais
+    // Efeito para carregar as notas iniciais após a autenticação estar pronta
     useEffect(() => {
+        if (authLoading) return; // aguardar sessão pronta
+
         filterNotas({
-            status: NotaStatusEnum.APROVADO,
+            status: NotaStatusEnum.COMPLETA,
             limit: initialParams.limit || 9
         });
-        
+
         return () => {
             if (cancelTokenRef.current) {
                 cancelTokenRef.current.cancel('Componente desmontado');
@@ -202,7 +197,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
                 clearTimeout(debounceTimeoutRef.current);
             }
         };
-    }, []);
+    }, [authLoading, filterNotas, initialParams.limit]);
 
     // *** CORRIGIDO: handleSearch igual ao useNotasFiscais ***
     const handleSearch = useCallback((term: string) => {
@@ -220,7 +215,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         if (term.trim() === '') {
             console.log('🧹 Campo vazio, buscando todas as notas');
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.COMPLETA,
                 page: 1,
                 fornecedor: undefined,
                 limit: initialParams.limit || 9
@@ -232,7 +227,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         debounceTimeoutRef.current = setTimeout(() => {
             console.log('⏰ Executando busca com debounce para:', term);
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.COMPLETA,
                 page: 1,
                 fornecedor: term,
                 limit: initialParams.limit || 9
@@ -257,7 +252,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         // Tentar ordenação via API primeiro (se houver termo de busca)
         if (searchTerm) {
             filterNotas({
-                status: NotaStatusEnum.APROVADO,
+                status: NotaStatusEnum.COMPLETA,
                 sort: field as string,
                 order: direction,
                 page: 1,
@@ -278,7 +273,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
             if (!bValue) return -1;
             
             // Tratar datas como strings ISO
-            if (field === 'data_emissao' || field === 'created_at' || field === 'updated_at') {
+            if (field === 'emission_date' || field === 'created_at' || field === 'updated_qive_date') {
                 aValue = new Date(aValue as string).getTime();
                 bValue = new Date(bValue as string).getTime();
             }
@@ -316,7 +311,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `nota-fiscal-${nota.id}.pdf`);
+            link.setAttribute('download', `nota-fiscal-${nota.qive_id}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
