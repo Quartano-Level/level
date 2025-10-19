@@ -94,14 +94,14 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             let url = API_URL;
             
             if (params.status) {
-                const statusValue = params.status === NotaStatusEnum.PENDENTE ? 'pendente' : 
+                const statusValue = params.status === NotaStatusEnum.PENDENTE ? 'PENDING' : 
                                   params.status === NotaStatusEnum.EM_PROCESSAMENTO ? 'em_processamento' : 
                                   params.status;
                 url = `${url}?status=${statusValue}`;
             }
             
             if (params.fornecedor && params.fornecedor.trim() !== '') {
-                url = `${url}${url.includes('?') ? '&' : '?'}cnpj_prestador=${encodeURIComponent(params.fornecedor.trim())}`;
+                url = `${url}${url.includes('?') ? '&' : '?'}filcnpj=${encodeURIComponent(params.fornecedor.trim())}`;
             }
             
             if (params.sort) {
@@ -284,7 +284,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             if (!bValue) return -1;
             
             // Tratar datas como strings ISO
-            if (field === 'data_emissao' || field === 'created_at' || field === 'updated_at') {
+            if (field === 'emission_date' || field === 'created_at' || field === 'updated_qive_date') {
                 aValue = new Date(aValue as string).getTime();
                 bValue = new Date(bValue as string).getTime();
             }
@@ -321,7 +321,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', `nota-fiscal-${nota.id}.pdf`);
+                link.setAttribute('download', `nota-fiscal-${nota.qive_id}.pdf`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -337,12 +337,12 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 'Content-Type': 'application/json',
       };
 
-      await axios.post(`${REPROCESS_API_URL}/${nota.numero_nf}/retry`,
+      await axios.post(`${REPROCESS_API_URL}/${nota.numero}/retry`,
             { motivo },
             { headers }
       );
 
-      toast.success(`Nota fiscal ${nota.numero_nf} enviada para reprocessamento.`);
+      toast.success(`Nota fiscal ${nota.numero} enviada para reprocessamento.`);
 
       // Recarregar as notas
       await filterNotas({
@@ -353,7 +353,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
         return true;
     } catch (error) {
         console.error('Erro ao reprocessar nota:', error);
-        toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero_nf}.`);
+        toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero}.`);
         return false;
     }
 },[filterNotas, activeFilter, searchTerm]);

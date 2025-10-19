@@ -44,10 +44,10 @@ export function NotasPage() {
     
     // Mapeamento dos valores do select para os campos reais da interface NotaFiscal
     const fieldMapping: Record<string, keyof NotaFiscal> = {
-      "data_da_nota": "data_emissao",
-      "fornecedor": "cnpj_prestador",
-      "numero_de_nota": "numero_nf",
-      "valor": "valor_total",
+      "data_da_nota": "emission_date",
+      "fornecedor": "filCnpj",
+      "numero_de_nota": "numero",
+      "valor": "valor_nota",
       "status": "status",
       "mais_recente": "created_at"
     };
@@ -180,34 +180,40 @@ export function NotasPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto h-full flex flex-col scrollbar-hide bg-white rounded-lg">
-            <div className="flex-1">
-              <NotasTable 
-                ref={tableRef}
-                notas={notas || []}
-                loading={loading}
-                onAccessPDF={handleAccessPDF}
-                onCorrect={handleReprocessNota}
-                onSort={handleSort}
-                sorting={sorting}
-              />
-            </div>
-            
-            {!loading && notas && 
-             Array.isArray(notas) && 
-             notas.length > 0 && 
-             !(notas.length === 1 && Object.keys(notas[0]).length === 0) && 
-             totalPages > 1 && (
-              <div className="mt-2 mb-4">
-                <Pagination
-                  currentPage={page}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                  loading={loading}
-                />
-              </div>
-            )}
+          {/* 1. Este container vira uma COLUNA FLEX */}
+        <div className="flex-1 bg-white rounded-lg relative flex flex-col overflow-hidden">
+          
+          {/* 2. Criamos um WRAPPER para a tabela que vai crescer e rolar */}
+          <div className="flex-1 overflow-y-auto">
+            <NotasTable
+              ref={tableRef}
+              notas={notas || []}
+              loading={loading}
+              onAccessPDF={handleAccessPDF}
+              onCorrect={handleReprocessNota}
+              onSort={handleSort}
+              sorting={sorting}
+            />
           </div>
+          
+          {/* 3. A paginação fica FORA do wrapper de scroll, como um rodapé */}
+          {!loading && notas && 
+           Array.isArray(notas) && 
+           notas.length > 0 && 
+           !(notas.length === 1 && Object.keys(notas[0]).length === 0) && 
+           totalPages > 1 && (
+             <div className="mt-2 mb-4 bg-white border-t border-gray-100 shadow-[0_-5px_5px_-5px_rgba(0,0,0,0.1)]">
+               <Pagination
+                 currentPage={page}
+                 totalPages={totalPages}
+                 onPageChange={handlePageChange}
+                 loading={loading}
+               />
+             </div>
+           )}
+        </div>
+          
+          
         </div>
       </div>
     </div>

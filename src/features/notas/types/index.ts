@@ -1,29 +1,49 @@
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 /**
  * Representa uma nota fiscal no sistema
  */
 export interface NotaFiscal {
-    id: string;
-    numero_nf: number;
-    cnpj_prestador: string;
-    data_emissao: string;
-    valor_total: number;
-    item_lista_serv?: string;
-    discriminacao?: string;
-    pricod?: string;
-    status: NotaStatusEnum;
-    /** Compatibilidade: algumas respostas trazem um único campo de motivo */
-    motivos_pendencia?: string;
-    attempt_count?: number;
-    next_retry?: string | null;
-    is_reprocessing?: boolean;
-    xml_path?: string;
-    pdf_path?: string;
-    xml_hash?: string;
-    pdf_hash?: string;
+    qive_id: string;
+    numero: number;
     created_at?: string;
-    updated_at?: string;
-    qive_id?: string;
+    status: NotaStatusEnum;
+    updated_qive_date?: Timestamp;
+    escriturada_date?: Timestamp;
+    saved_date?: Timestamp;
+    completed_date?: Timestamp;
+    info: string;
+    attempts: number;
+    id_metrica?: string;
+    emission_date?: String;
+    identified_date?: Timestamp;
+    error_date?: Timestamp;
+    processing_started_date?: Timestamp;
+    obs?: string;
+    counterparty_cnpj: string;
+    filcod?: number;
+    filCnpj?: string;
+    valor_nota?: number;
+
+    // cnpj_prestador: string;
+    // data_emissao: string;
+    // valor_total: number;
+    // item_lista_serv?: string;
+    // discriminacao?: string;
+    // pricod?: string;
+    
+    // /** Compatibilidade: algumas respostas trazem um único campo de motivo */
+    // motivos_pendencia?: string;
+    // attempt_count?: number;
+    // next_retry?: string | null;
+    // is_reprocessing?: boolean;
+    // xml_path?: string;
+    // pdf_path?: string;
+    // xml_hash?: string;
+    // pdf_hash?: string;
+    
+    // updated_at?: string;
+    // qive_id?: string;
 }
 
 /**
@@ -70,10 +90,10 @@ export interface NotaActionConfig {
  * Enum para os status possíveis de uma nota fiscal
  */
 export enum NotaStatusEnum {
-    PENDENTE = 'pendente',
+    PENDENTE = 'PENDING',
     EM_PROCESSAMENTO = 'em_processamento',
     IDENTIFIED = 'identificada',
-    SAVED = 'saved',
-    ESCRITURADA = 'escriturada',
-    COMPLETA = 'completa',
+    SAVED = 'SAVED',
+    ESCRITURADA = 'ESCRITURADA',
+    COMPLETA = 'COMPLETED',
 }

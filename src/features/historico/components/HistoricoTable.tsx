@@ -75,20 +75,10 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
       let label = "";
       
       switch(status) {
-        case "pendente":
-          bgClass = "bg-yellow-100";
-          textClass = "text-yellow-800";
-          label = "Pendente";
-          break;
-        case "em_processamento":
-          bgClass = "bg-blue-100";
-          textClass = "text-blue-800";
-          label = "Em processamento";
-          break;
-        case "escriturado":
-          bgClass = "bg-orange-100";
-          textClass = "text-orange-800";
-          label = "Escriturado";
+        case "completed":
+          bgClass = "bg-green-100";
+          textClass = "text-green-800";
+          label = "Completa";
           break;
         case "recusado":
         case "reprovado":
@@ -111,19 +101,20 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
     };
 
     // Formatar valor para exibição
-    const formatCurrency = (value: number) => {
+    const formatCurrency = (value?: number | null) => {
+      const numberValue = typeof value === 'number' ? value : 0;
       return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL'
-      }).format(value);
+      }).format(numberValue);
     };
 
     // Formatar data para exibição
-    const formatDate = (dateString: string) => {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR');
-    };
+        const formatDate = (dateString?: string | String | null) => {
+          if (!dateString) return '';
+          const date = new Date(String(dateString));
+          return date.toLocaleDateString('pt-BR');
+        };
 
     // Renderizar o conteúdo da tabela com base no estado
     const renderTableContent = () => {
@@ -166,18 +157,18 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
       return (
         <>
           {notas?.map((nota) => (
-            <TableRow key={nota.id} className="hover:bg-gray-50 h-[52px] border-b border-gray-100">
+            <TableRow key={nota.qive_id} className="hover:bg-gray-50 h-[52px] border-b border-gray-100">
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {formatDate(nota.data_emissao)}
+                {formatDate(nota.emission_date)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {nota.cnpj_prestador}
+                {nota.filCnpj}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {nota.numero_nf}
+                {nota.numero}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {formatCurrency(nota.valor_total)}
+                {formatCurrency(nota.valor_nota)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm h-[52px]">
                 {renderStatusBadge(nota.status)}
@@ -215,16 +206,16 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
           <TableHeader className={loading ? "hidden" : ""}>
             <TableRow className="border-b border-gray-100">
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("Data de Emissão", "data_emissao")}
+                {renderSortableHeader("Data de Emissão", "emission_date")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("CNPJ Prestador", "cnpj_prestador")}
+                {renderSortableHeader("CNPJ Prestador", "filCnpj")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("Número da Nota", "numero_nf")}
+                {renderSortableHeader("Número da Nota", "numero")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("Valor", "valor_total")}
+                {renderSortableHeader("Valor", "valor_nota")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
                 {renderSortableHeader("Status", "status")}

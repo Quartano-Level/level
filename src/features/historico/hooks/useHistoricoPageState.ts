@@ -45,7 +45,7 @@ export function useHistoricoPageState() {
     const refreshData = useCallback(() => {
         fetchNotas({
             limit: 8,
-            status: NotaStatusEnum.PENDENTE,
+            status: NotaStatusEnum.COMPLETA,
             fornecedor: inputSearchTerm.trim() ? inputSearchTerm : undefined
         });
     }, [fetchNotas, inputSearchTerm]);
