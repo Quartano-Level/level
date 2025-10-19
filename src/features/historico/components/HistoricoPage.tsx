@@ -55,7 +55,7 @@ export function HistoricoPage() {
       "data_da_nota": "emission_date",
       "fornecedor": "filCnpj",
       "numero_de_nota": "numero", 
-      "valor": "valor_nota",
+      "valor": "total_value",
       "status": "status",
       "mais_recente": "created_at"
     };

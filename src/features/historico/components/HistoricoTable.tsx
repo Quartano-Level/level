@@ -168,7 +168,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
                 {nota.numero}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {formatCurrency(nota.valor_nota)}
+                {formatCurrency(nota.total_value)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm h-[52px]">
                 {renderStatusBadge(nota.status)}
@@ -215,7 +215,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
                 {renderSortableHeader("Número da Nota", "numero")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("Valor", "valor_nota")}
+                {renderSortableHeader("Valor", "total_value")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
                 {renderSortableHeader("Status", "status")}
