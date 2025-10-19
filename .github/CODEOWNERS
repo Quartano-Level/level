@@ -1,0 +1,6 @@
+# CODEOWNERS for the Quartano-Level repository
+# This assigns the GitHub team 'PR Reviwers' as owners for all files.
+# NOTE: I'm assuming the team's slug is 'pr-reviwers' under the organization 'quartano-level'.
+# If the actual team slug differs, update the owner line below to the correct @org/team-slug.
+
+* @Quartano-Level/prreviwers
