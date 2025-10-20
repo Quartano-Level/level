@@ -4,7 +4,7 @@ import { Button } from "@/shared/components/ui/button"
 import { Card } from "@/shared/components/ui/card"
 import { Input } from "@/shared/components/ui/input"
 import { useState } from "react"
-import { ChevronDown, FileClock, Search, TextSearch } from "lucide-react"
+import { AlertTriangle, CheckCircle, ChevronDown, FileClock, Search, TextSearch } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog"
 import { Label } from "@/shared/components/ui/label"
@@ -65,6 +65,17 @@ export function NotasPage() {
   const handleReprocessNota = (nota: NotaFiscal) => {
     handleCorrectNota(nota, "Solicitação de reprocessamento");
   };
+
+  const countersDisplayMap: Record<string, { label: string; Icon: any }> = {
+    TOTAL: { label: 'Todas as notas', Icon: TextSearch },
+    PENDING: { label: 'Notas pendentes', Icon: TextSearch },
+    PROCESSING: { label: 'Notas em processamento', Icon: FileClock },
+    IDENTIFIED: { label: 'Notas identificadas', Icon: CheckCircle },
+    SAVED: { label: 'Notas salvas', Icon: CheckCircle },
+    ESCRITURADA: { label: 'Notas escrituradas', Icon: CheckCircle },
+    COMPLETED: { label: 'Notas completas', Icon: CheckCircle },
+    ERROR: { label: 'Notas com erro', Icon: AlertTriangle },
+  };
   
   return (
     <div className="w-full flex flex-col h-screen pt-12 pl-6 pr-16 pb-10 gap-6 overflow-hidden">
@@ -73,32 +84,26 @@ export function NotasPage() {
           Panorama geral
         </h2>
         <div className="flex gap-3">
-          <Card className="w-fit px-5 py-3.5 flex flex-row">
-            <div className="bg-primary p-3.5 rounded-lg">
-              <TextSearch size={22} />
-            </div>
-            <div className="pr-18">
-              <h3 className="text-secondary text-xl font-medium">
-                {counters.pendentes}
-              </h3>
-              <h3 className="text-dark-gray text-sm">
-                Notas pendentes
-              </h3>
-            </div>
-          </Card>
-          <Card className="w-fit px-5 py-3.5 flex flex-row">
-            <div className="bg-primary p-3.5 rounded-lg">
-              <FileClock size={22} />
-            </div>
-            <div className="pr-18">
-              <h3 className="text-secondary text-xl font-medium">
-                {counters.emProcessamento}
-              </h3>
-              <h3 className="text-dark-gray text-sm">
-                Notas em processamento
-              </h3>
-            </div>
-          </Card>
+            {
+                Object.entries(counters || {}).map(([statusKey, qty]) => {
+                  console.log('Rendering counter:', statusKey, qty);
+                  const key = statusKey.toUpperCase();
+                  const meta = countersDisplayMap[key];
+                  const Icon = meta?.Icon;
+  
+                  return meta && (qty || key === 'TOTAL') ? (
+                    <Card key={statusKey} className="px-5 py-3.5 flex flex-row">
+                      <div className="bg-primary p-3.5 rounded-lg">
+                        <Icon size={22} />
+                      </div>
+                      <div className="pr-18">
+                        <h3 className="text-secondary text-xl font-medium">{qty}</h3>
+                        <h3 className="text-dark-gray text-sm text-nowrap">{meta.label}</h3>
+                      </div>
+                    </Card>
+                  ) : null;
+                })
+              }
         </div>
 
         <div className="flex flex-col gap-2 flex-1 overflow-hidden rounded-lg">
@@ -212,10 +217,10 @@ export function NotasPage() {
              </div>
            )}
         </div>
-          
-          
+
+
+          </div>
         </div>
-      </div>
     </div>
   );
 } 

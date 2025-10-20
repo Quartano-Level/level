@@ -32,7 +32,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(initialParams.page || 1);
     const [totalPages, setTotalPages] = useState(1);
-    const [counters, setCounters] = useState({ pendentes: 0, emProcessamento: 0 });
+    const [counters, setCounters] = useState<Record<string, number>>({});
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState<string | null>(null);
     const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -59,18 +59,25 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 'Authorization': token ? `Bearer ${token}` : '',
                 'Content-Type': 'application/json'
             };
-            
+
             const response = await axios.get(`${API_URL}/counters`, { headers });
             const data = response.data;
-            
-            setCounters({
-                pendentes: data.resumo_status.pendente || 0,
-                emProcessamento: data.resumo_status.em_processamento || 0
-            });
-            
-            return data;
+
+            if (data && data.resumo_status) {
+                const result = { 
+                    TOTAL: Object.values((data?.resumo_status || {}) as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0),
+                    ...data.resumo_status
+                };
+
+                setCounters(result);
+                return result;
+            }
+
+            setCounters({});
+            return {};
         } catch (error) {
-            return { pendentes: 0, emProcessamento: 0 };
+            setCounters({});
+            return {};
         }
     }, [getAuthToken]);
 
