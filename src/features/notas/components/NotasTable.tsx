@@ -79,7 +79,7 @@ const RowActions = ({
       </Tooltip>
     </TooltipProvider>
     
-    {["PENDING", "ESCRITURADA", "PROCESSING", "FAILED"].includes(nota.status) && (
+    {nota.status !== 'COMPLETED' && (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -191,19 +191,25 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
                   {nota.emission_date}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.counterparty_cnpj}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                   {nota.filCnpj}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                   {nota.numero}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.valor_nota ? formatCurrency(nota.valor_nota) : 'R$ 0,00'}
+                  {nota.total_value ? formatCurrency(nota.total_value) : 'R$ 0,00'}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm h-[52px]">
                   {nota.status ? <StatusBadge status={nota.status} /> : '-'}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                   {nota.obs !== "-" ? nota.obs : <span className="text-gray-400">-</span>}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.attempts || 1}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-500 h-[52px]">
                   <RowActions nota={nota} onAccessPDF={onAccessPDF} onCorrect={onCorrect} />
@@ -226,17 +232,24 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="CNPJ Prestador" field="filCnpj" sorting={sorting} onSort={onSort} />
               </TableHead>
+              
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="CNPJ Filial" field="filCnpj" sorting={sorting} onSort={onSort} />
+              </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="Número da Nota" field="numero" sorting={sorting} onSort={onSort} />
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
-                <SortableHeader label="Valor" field="valor_nota" sorting={sorting} onSort={onSort} />
+                <SortableHeader label="Valor" field="total_value" sorting={sorting} onSort={onSort} />
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="Status" field="status" sorting={sorting} onSort={onSort} />
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 Detalhes
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Tentativas" field="attempts" sorting={sorting} onSort={onSort} />
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 Ações

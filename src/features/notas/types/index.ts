@@ -15,7 +15,7 @@ export interface NotaFiscal {
     info: string;
     attempts: number;
     id_metrica?: string;
-    emission_date?: String;
+    emission_date?: string;
     identified_date?: Timestamp;
     error_date?: Timestamp;
     processing_started_date?: Timestamp;
@@ -23,27 +23,7 @@ export interface NotaFiscal {
     counterparty_cnpj: string;
     filcod?: number;
     filCnpj?: string;
-    valor_nota?: number;
-
-    // cnpj_prestador: string;
-    // data_emissao: string;
-    // valor_total: number;
-    // item_lista_serv?: string;
-    // discriminacao?: string;
-    // pricod?: string;
-    
-    // /** Compatibilidade: algumas respostas trazem um único campo de motivo */
-    // motivos_pendencia?: string;
-    // attempt_count?: number;
-    // next_retry?: string | null;
-    // is_reprocessing?: boolean;
-    // xml_path?: string;
-    // pdf_path?: string;
-    // xml_hash?: string;
-    // pdf_hash?: string;
-    
-    // updated_at?: string;
-    // qive_id?: string;
+    total_value?: number;
 }
 
 /**
@@ -91,8 +71,8 @@ export interface NotaActionConfig {
  */
 export enum NotaStatusEnum {
     PENDENTE = 'PENDING',
-    EM_PROCESSAMENTO = 'em_processamento',
-    IDENTIFIED = 'identificada',
+    EM_PROCESSAMENTO = 'PROCESSING',
+    IDENTIFIED = 'IDENTIFIED',
     SAVED = 'SAVED',
     ESCRITURADA = 'ESCRITURADA',
     COMPLETA = 'COMPLETED',

@@ -110,7 +110,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
     };
 
     // Formatar data para exibição
-        const formatDate = (dateString?: string | String | null) => {
+        const formatDate = (dateString?: string | null) => {
           if (!dateString) return '';
           const date = new Date(String(dateString));
           return date.toLocaleDateString('pt-BR');
@@ -162,13 +162,13 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
                 {formatDate(nota.emission_date)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {nota.filCnpj}
+                {nota.counterparty_cnpj}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                 {nota.numero}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {formatCurrency(nota.valor_nota)}
+                {formatCurrency(nota.total_value)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm h-[52px]">
                 {renderStatusBadge(nota.status)}
@@ -215,7 +215,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
                 {renderSortableHeader("Número da Nota", "numero")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                {renderSortableHeader("Valor", "valor_nota")}
+                {renderSortableHeader("Valor", "total_value")}
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
                 {renderSortableHeader("Status", "status")}
