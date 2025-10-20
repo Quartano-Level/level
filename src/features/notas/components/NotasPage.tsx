@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Pagination } from "@/shared/components/common/pagination"
-import { NotaFiscal } from '../types'
+import { NotaFiscal, NotaStatusEnum } from '../types'
 import { useNotas } from "../hooks/useNotas"
 import { NotasTable } from "./NotasTable"
 
@@ -86,18 +86,23 @@ export function NotasPage() {
         <div className="flex gap-3">
             {
                 Object.entries(counters || {}).map(([statusKey, qty]) => {
-                  const key = statusKey.toUpperCase();
+                  const key = statusKey.toUpperCase() as NotaStatusEnum | 'TOTAL';
                   const meta = countersDisplayMap[key];
                   const Icon = meta?.Icon;
+                  const isActive = activeFilter === key;
   
                   return meta && (qty || key === 'TOTAL') ? (
-                    <Card key={statusKey} className="px-5 py-3.5 flex flex-row">
-                      <div className="bg-primary p-3.5 rounded-lg">
+                    <Card
+                      key={statusKey}
+                      className={`px-5 py-3.5 flex flex-row cursor-pointer transition-colors duration-150 ${isActive ? 'bg-primary' : 'bg-white'}`}
+                      onClick={() => handleFilterChange(key)}
+                    >
+                      <div className={`${isActive ? 'bg-primary' : 'bg-primary/10'} p-3.5 rounded-lg`}> 
                         <Icon size={22} />
                       </div>
-                      <div className="pr-18">
-                        <h3 className="text-secondary text-xl font-medium">{qty}</h3>
-                        <h3 className="text-dark-gray text-sm text-nowrap">{meta.label}</h3>
+                      <div className="pl-3 pr-18">
+                        <h3 className={`${isActive ? 'text-white' : 'text-secondary'} text-xl font-medium`}>{qty}</h3>
+                        <h3 className={`${isActive ? 'text-white/90' : 'text-dark-gray'} text-sm text-nowrap`}>{meta.label}</h3>
                       </div>
                     </Card>
                   ) : null;
@@ -111,26 +116,6 @@ export function NotasPage() {
           </h2>
           <div className="flex items-center justify-between px-4 pb-4">
             <div className="flex gap-7">
-              <div className="flex gap-5">
-                <Button 
-                  className={`text-sm font-normal rounded-3xl px-5 py-3.5 border border-secondary ${activeFilter === null ? 'bg-secondary text-white' : 'bg-transparent text-secondary'}`}
-                  onClick={() => handleFilterChange(null)}
-                >
-                  Todas
-                </Button>
-                <Button 
-                  className={`text-sm font-normal rounded-3xl px-5 py-3.5 border border-secondary ${activeFilter === 'pendente' ? 'bg-secondary text-white' : 'bg-transparent text-secondary'}`}
-                  onClick={() => handleFilterChange('pendente')}
-                >
-                  Somente pendentes
-                </Button>
-                <Button 
-                  className={`text-sm font-normal rounded-3xl px-5 py-3.5 border border-secondary ${activeFilter === 'em_processamento' ? 'bg-secondary text-white' : 'bg-transparent text-secondary'}`}
-                  onClick={() => handleFilterChange('em_processamento')}
-                >
-                  Somente em processamento
-                </Button>
-              </div>
               <div className="relative">
                 <Search
                   size={16}

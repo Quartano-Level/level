@@ -162,7 +162,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
                 {formatDate(nota.emission_date)}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                {nota.filCnpj}
+                {nota.counterparty_cnpj}
               </TableCell>
               <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                 {nota.numero}

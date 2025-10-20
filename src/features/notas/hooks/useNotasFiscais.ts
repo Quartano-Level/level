@@ -101,14 +101,11 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             let url = API_URL;
             
             if (params.status) {
-                const statusValue = params.status === NotaStatusEnum.PENDENTE ? 'PENDING' : 
-                                  params.status === NotaStatusEnum.EM_PROCESSAMENTO ? 'em_processamento' : 
-                                  params.status;
-                url = `${url}?status=${statusValue}`;
+                url = `${url}?status=${params.status}`;
             }
             
             if (params.fornecedor && params.fornecedor.trim() !== '') {
-                url = `${url}${url.includes('?') ? '&' : '?'}filcnpj=${encodeURIComponent(params.fornecedor.trim())}`;
+                url = `${url}${url.includes('?') ? '&' : '?'}cnpj_prestador=${encodeURIComponent(params.fornecedor.trim())}`;
             }
             
             if (params.sort) {
@@ -207,11 +204,11 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     }, []);
     
     // Função para lidar com a mudança de filtro
-    const handleFilterChange = useCallback((filter: string | null) => {
+    const handleFilterChange = useCallback((filter: NotaStatusEnum | 'TOTAL') => {
         setActiveFilter(filter);
         
         filterNotas({
-            status: getStatusParam(filter),
+            status: filter === 'TOTAL' ? undefined : filter,
             page: 1,
             fornecedor: searchTerm || undefined,
             limit: initialParams.limit || 7
