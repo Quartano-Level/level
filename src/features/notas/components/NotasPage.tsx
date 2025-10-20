@@ -86,7 +86,6 @@ export function NotasPage() {
         <div className="flex gap-3">
             {
                 Object.entries(counters || {}).map(([statusKey, qty]) => {
-                  console.log('Rendering counter:', statusKey, qty);
                   const key = statusKey.toUpperCase();
                   const meta = countersDisplayMap[key];
                   const Icon = meta?.Icon;
