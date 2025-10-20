@@ -110,7 +110,7 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
     };
 
     // Formatar data para exibição
-        const formatDate = (dateString?: string | String | null) => {
+        const formatDate = (dateString?: string | null) => {
           if (!dateString) return '';
           const date = new Date(String(dateString));
           return date.toLocaleDateString('pt-BR');

@@ -89,7 +89,7 @@ export function NotasPage() {
                   const key = statusKey.toUpperCase() as NotaStatusEnum | 'TOTAL';
                   const meta = countersDisplayMap[key];
                   const Icon = meta?.Icon;
-                  const isActive = activeFilter === key;
+                  const isActive = activeFilter === key || (activeFilter === null && key === 'TOTAL');
   
                   return meta && (qty || key === 'TOTAL') ? (
                     <Card

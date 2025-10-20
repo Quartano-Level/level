@@ -201,7 +201,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 cancelTokenRef.current.cancel('Componente desmontado');
             }
         };
-    }, []);
+    }, [initialParams.limit, initialParams.status, filterNotas]);
     
     // Função para lidar com a mudança de filtro
     const handleFilterChange = useCallback((filter: NotaStatusEnum | 'TOTAL') => {

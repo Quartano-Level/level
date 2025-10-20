@@ -15,7 +15,7 @@ export interface NotaFiscal {
     info: string;
     attempts: number;
     id_metrica?: string;
-    emission_date?: String;
+    emission_date?: string;
     identified_date?: Timestamp;
     error_date?: Timestamp;
     processing_started_date?: Timestamp;
