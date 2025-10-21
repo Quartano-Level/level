@@ -61,24 +61,27 @@ const RowActions = ({
   onCorrect: (nota: NotaFiscal) => void;
 }) => (
   <div className="flex space-x-2">
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onAccessPDF(nota)}
-            className="text-xs text-orange-600 border-orange-500 bg-white hover:bg-orange-50 hover:text-orange-700 hover:border-orange-600 transition-all duration-200 cursor-pointer"
-          >
-            Acessar PDF
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Visualizar o PDF da nota fiscal</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
     
+    {nota.status !== 'IDENTIFIED' && (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onAccessPDF(nota)}
+              className="text-xs text-orange-600 border-orange-500 bg-white hover:bg-orange-50 hover:text-orange-700 hover:border-orange-600 transition-all duration-200 cursor-pointer"
+            >
+              Acessar PDF
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Visualizar o PDF da nota fiscal</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )}
+
     {nota.status !== 'COMPLETED' && (
       <TooltipProvider>
         <Tooltip>
