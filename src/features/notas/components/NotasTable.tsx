@@ -205,6 +205,15 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
                   {nota.total_value ? formatCurrency(nota.total_value) : 'R$ 0,00'}
                 </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.identified_date}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.processing_started_date}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.escriturada_date}
+                </TableCell>
                 <TableCell className="py-4 px-6 text-sm h-[52px]">
                   {nota.status ? <StatusBadge status={nota.status} /> : '-'}
                 </TableCell>
@@ -244,6 +253,15 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="Valor" field="total_value" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data de Identificação" field="identified_date" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data Inicio Processamento" field="processing_started_date" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data de Escrituração" field="escriturada_date" sorting={sorting} onSort={onSort} />
               </TableHead>
               <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="Status" field="status" sorting={sorting} onSort={onSort} />
