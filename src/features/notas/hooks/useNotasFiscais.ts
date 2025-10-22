@@ -265,17 +265,17 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
         setSortConfig({ field, direction });
         
         // OPÇÃO 1: Tentar ordenação via API primeiro (se houver dados para buscar novamente)
-        if (activeFilter !== null || searchTerm) {
-            filterNotas({
-                status: getStatusParam(activeFilter),
-                sort: field as string,
-                order: direction,
-                page: 1,
-                fornecedor: searchTerm || undefined,
-                limit: initialParams.limit || 7
-            });
-            return;
-        }
+        // if (activeFilter !== null || searchTerm) {
+        //     filterNotas({
+        //         status: getStatusParam(activeFilter),
+        //         sort: field as string,
+        //         order: direction,
+        //         page: 1,
+        //         fornecedor: searchTerm || undefined,
+        //         limit: initialParams.limit || 7
+        //     });
+        //     return;
+        // }
         
         // OPÇÃO 2: Ordenação local (mais rápida para dados já carregados)
         const sortedData = [...allNotasRef.current].sort((a, b) => {
@@ -288,7 +288,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             if (!bValue) return -1;
             
             // Tratar datas como strings ISO
-            if (field === 'emission_date' || field === 'created_at' || field === 'updated_qive_date') {
+            if (field.includes("_date") || field === 'created_at') {
                 aValue = new Date(aValue as string).getTime();
                 bValue = new Date(bValue as string).getTime();
             }
