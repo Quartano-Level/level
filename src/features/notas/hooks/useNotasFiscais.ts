@@ -15,6 +15,7 @@ interface SortConfig {
 
 // URL base da API
 const API_URL = 'https://level-nfse.app.n8n.cloud/webhook/nfs-pendentes';
+const REPROCESS_API_URL = 'https://level-nfse.app.n8n.cloud/webhook/2549b8a5-a9e0-4855-a8c1-cbe6b9a2db4e/nfs-pendentes';
 
 
 
@@ -31,7 +32,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(initialParams.page || 1);
     const [totalPages, setTotalPages] = useState(1);
-    const [counters, setCounters] = useState({ pendentes: 0, emProcessamento: 0 });
+    const [counters, setCounters] = useState<Record<string, number>>({});
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState<string | null>(null);
     const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -58,18 +59,25 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 'Authorization': token ? `Bearer ${token}` : '',
                 'Content-Type': 'application/json'
             };
-            
+
             const response = await axios.get(`${API_URL}/counters`, { headers });
             const data = response.data;
-            
-            setCounters({
-                pendentes: data.resumo_status.pendente || 0,
-                emProcessamento: data.resumo_status.em_processamento || 0
-            });
-            
-            return data;
+
+            if (data && data.resumo_status) {
+                const result = { 
+                    TOTAL: Object.values((data?.resumo_status || {}) as Record<string, number>).reduce((sum: number, val: number) => sum + val, 0),
+                    ...data.resumo_status
+                };
+
+                setCounters(result);
+                return result;
+            }
+
+            setCounters({});
+            return {};
         } catch (error) {
-            return { pendentes: 0, emProcessamento: 0 };
+            setCounters({});
+            return {};
         }
     }, [getAuthToken]);
 
@@ -93,10 +101,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             let url = API_URL;
             
             if (params.status) {
-                const statusValue = params.status === NotaStatusEnum.PENDENTE ? 'pendente' : 
-                                  params.status === NotaStatusEnum.EM_PROCESSAMENTO ? 'em_processamento' : 
-                                  params.status;
-                url = `${url}?status=${statusValue}`;
+                url = `${url}?status=${params.status}`;
             }
             
             if (params.fornecedor && params.fornecedor.trim() !== '') {
@@ -196,14 +201,14 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 cancelTokenRef.current.cancel('Componente desmontado');
             }
         };
-    }, []);
+    }, [initialParams.limit, initialParams.status, filterNotas]);
     
     // Função para lidar com a mudança de filtro
-    const handleFilterChange = useCallback((filter: string | null) => {
+    const handleFilterChange = useCallback((filter: NotaStatusEnum | 'TOTAL') => {
         setActiveFilter(filter);
         
         filterNotas({
-            status: getStatusParam(filter),
+            status: filter === 'TOTAL' ? undefined : filter,
             page: 1,
             fornecedor: searchTerm || undefined,
             limit: initialParams.limit || 7
@@ -260,17 +265,17 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
         setSortConfig({ field, direction });
         
         // OPÇÃO 1: Tentar ordenação via API primeiro (se houver dados para buscar novamente)
-        if (activeFilter !== null || searchTerm) {
-            filterNotas({
-                status: getStatusParam(activeFilter),
-                sort: field as string,
-                order: direction,
-                page: 1,
-                fornecedor: searchTerm || undefined,
-                limit: initialParams.limit || 7
-            });
-            return;
-        }
+        // if (activeFilter !== null || searchTerm) {
+        //     filterNotas({
+        //         status: getStatusParam(activeFilter),
+        //         sort: field as string,
+        //         order: direction,
+        //         page: 1,
+        //         fornecedor: searchTerm || undefined,
+        //         limit: initialParams.limit || 7
+        //     });
+        //     return;
+        // }
         
         // OPÇÃO 2: Ordenação local (mais rápida para dados já carregados)
         const sortedData = [...allNotasRef.current].sort((a, b) => {
@@ -283,7 +288,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
             if (!bValue) return -1;
             
             // Tratar datas como strings ISO
-            if (field === 'data_emissao' || field === 'created_at' || field === 'updated_at') {
+            if (field.includes("_date") || field === 'created_at') {
                 aValue = new Date(aValue as string).getTime();
                 bValue = new Date(bValue as string).getTime();
             }
@@ -320,7 +325,7 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', `nota-fiscal-${nota.id}.pdf`);
+                link.setAttribute('download', `nota-fiscal-${nota.qive_id}.pdf`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -332,32 +337,31 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     // Função para reprocessar uma nota
     const handleCorrectNota = useCallback(async (nota: NotaFiscal, motivo: string) => {
         try {
-            //const token = getAuthToken();
             const headers = {
-                //'Authorization': token ? `Bearer ${token}` : '',
-                'Content-Type': 'application/json'
-            };
-            
-            await axios.post(`https://level-nfse.app.n8n.cloud/webhook/d05b419f-9c13-4bb9-91f3-0ac11d535a76/nfs-pendentes/${nota.numero_nf}/retry`, 
-                { motivo },
-                { headers }
-                //https://level-nfse.app.n8n.cloud/webhook-test/d05b419f-9c13-4bb9-91f3-0ac11d535a76/nfs-pendentes/corrigir/:id
-            );
-            
-            toast.success(`Nota fiscal ${nota.numero_nf} enviada para reprocessamento.`);
-            
-            // Recarregar as notas
-            await filterNotas({
-                status: getStatusParam(activeFilter),
-                fornecedor: searchTerm || undefined,
-            });
-            
-            return true;
-        } catch (error) {
-            toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero_nf}.`);
-            return false;
-        }
-    }, [getAuthToken, filterNotas, activeFilter, searchTerm]);
+                'Content-Type': 'application/json',
+      };
+
+      await axios.post(`${REPROCESS_API_URL}/${nota.numero}/retry`,
+            { motivo },
+            { headers }
+      );
+
+      toast.success(`Nota fiscal ${nota.numero} enviada para reprocessamento.`);
+
+      // Recarregar as notas
+      await filterNotas({
+        status: getStatusParam(activeFilter),
+        fornecedor: searchTerm || undefined,
+      });
+
+        return true;
+    } catch (error) {
+        console.error('Erro ao reprocessar nota:', error);
+        toast.error(`Erro ao reprocessar a nota fiscal ${nota.numero}.`);
+        return false;
+    }
+},[filterNotas, activeFilter, searchTerm]);
+
     
     return {
         notas,

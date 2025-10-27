@@ -41,7 +41,7 @@ export function HistoricoPage() {
 
   // Adaptador para acessar PDF
   const handleAccessPDF = (nota: NotaFiscal) => {
-    if (nota.id) {
+    if (nota.qive_id) {
       getNotaPDF(nota);
     }
   };
@@ -52,10 +52,10 @@ export function HistoricoPage() {
     
     // Mapeamento dos valores do select para os campos reais da interface NotaFiscal
     const fieldMapping: Record<string, keyof NotaFiscal> = {
-      "data_da_nota": "data_emissao",
-      "fornecedor": "cnpj_prestador",
-      "numero_de_nota": "numero_nf", 
-      "valor": "valor_total",
+      "data_da_nota": "emission_date",
+      "fornecedor": "filCnpj",
+      "numero_de_nota": "numero", 
+      "valor": "total_value",
       "status": "status",
       "mais_recente": "created_at"
     };
@@ -73,6 +73,11 @@ export function HistoricoPage() {
       console.error("Erro ao carregar notas:", error);
     }
   }, [error]);
+
+  // Debug: log dos estados principais para inspecionar por que nada aparece
+  useEffect(() => {
+    console.log('HistoricoPage state:', { notas, loading, error, page, totalPages, searchTerm });
+  }, [notas, loading, error, page, totalPages, searchTerm]);
 
   return (
     <div className="w-full flex flex-col h-screen pt-12 pl-6 pr-16 pb-10 gap-6 overflow-hidden">
@@ -171,7 +176,7 @@ export function HistoricoPage() {
                 <Button 
                   variant="link" 
                   className="text-primary ml-2"
-                  onClick={() => fetchNotas({ limit: 9, status: NotaStatusEnum.APROVADO })}
+                  onClick={() => fetchNotas({ limit: 9, status: NotaStatusEnum.COMPLETA })}
                 >
                   Tentar novamente
                 </Button>

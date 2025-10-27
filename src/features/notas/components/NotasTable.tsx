@@ -61,25 +61,28 @@ const RowActions = ({
   onCorrect: (nota: NotaFiscal) => void;
 }) => (
   <div className="flex space-x-2">
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onAccessPDF(nota)}
-            className="text-xs text-orange-600 border-orange-500 bg-white hover:bg-orange-50 hover:text-orange-700 hover:border-orange-600 transition-all duration-200 cursor-pointer"
-          >
-            Acessar PDF
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Visualizar o PDF da nota fiscal</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
     
-    {nota.status === "pendente" && (
+    {nota.status !== 'IDENTIFIED' && (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onAccessPDF(nota)}
+              className="text-xs text-orange-600 border-orange-500 bg-white hover:bg-orange-50 hover:text-orange-700 hover:border-orange-600 transition-all duration-200 cursor-pointer"
+            >
+              Acessar PDF
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Visualizar o PDF da nota fiscal</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )}
+
+    {nota.status !== 'FINALIZADA' && (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -166,13 +169,11 @@ const EmptyState = () => (
  */
 export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
   ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting }, ref) => {
-    // Expor funções para o componente pai
     useImperativeHandle(ref, () => ({
       handleFilterChange: () => {},
       handleSearch: () => {}
     }));
 
-    // Renderizar o conteúdo da tabela com base no estado
     const renderTableContent = () => {
       if (loading) {
         return <LoadingState />;
@@ -185,39 +186,45 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
       return (
         <>
           {notas.map((nota) => {
-            if (!isValidNota(nota)) {
-              return null;
-            }
-            
+            if (!isValidNota(nota)) return null;
+
             return (
-              <TableRow key={nota.id} className="hover:bg-gray-50 h-[52px] border-b border-gray-100">
+              <TableRow key={nota.qive_id} className="hover:bg-gray-50 h-[52px] border-b border-gray-100">
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.data_emissao}
+                  {nota.emission_date}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.cnpj_prestador}
+                  {nota.counterparty_cnpj}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.numero_nf}
+                  {nota.filCnpj}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.valor_total ? formatCurrency(nota.valor_total) : 'R$ 0,00'}
+                  {nota.numero}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.total_value ? formatCurrency(nota.total_value) : 'R$ 0,00'}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.identified_date}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.processing_started_date}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.escriturada_date}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm h-[52px]">
                   {nota.status ? <StatusBadge status={nota.status} /> : '-'}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
-                  {nota.motivos_pendencia !== "-" ? 
-                    nota.motivos_pendencia :  
-                    <span className="text-gray-400">-</span>
-                  }
+                  {nota.obs !== "-" ? nota.obs : <span className="text-gray-400">-</span>}
+                </TableCell>
+                <TableCell className="py-4 px-6 text-sm text-gray-900 h-[52px]">
+                  {nota.attempts || 1}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-500 h-[52px]">
-                  <RowActions 
-                    nota={nota}
-                    onAccessPDF={onAccessPDF}
-                    onCorrect={onCorrect}
-                  />
+                  <RowActions nota={nota} onAccessPDF={onAccessPDF} onCorrect={onCorrect} />
                 </TableCell>
               </TableRow>
             );
@@ -227,41 +234,55 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
     };
 
     return (
-      <div className="overflow-hidden rounded-md border-none bg-white w-full">
-        <Table className="w-full">
-          <TableHeader className={loading ? "hidden" : ""}>
-            <TableRow className="border-b border-gray-100">
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                <SortableHeader label="Data de Emissão" field="data_emissao" sorting={sorting} onSort={onSort} />
+      <div className="rounded-md border bg-white w-full h-full overflow-y-auto">
+        <Table className="w-full min-w-[800px]">
+          <TableHeader className="bg-white border-b border-gray-100">
+            <TableRow>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data de Emissão" field="emission_date" sorting={sorting} onSort={onSort} />
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                <SortableHeader label="CNPJ Prestador" field="cnpj_prestador" sorting={sorting} onSort={onSort} />
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="CNPJ Prestador" field="filCnpj" sorting={sorting} onSort={onSort} />
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                <SortableHeader label="Número da Nota" field="numero_nf" sorting={sorting} onSort={onSort} />
+              
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="CNPJ Filial" field="filCnpj" sorting={sorting} onSort={onSort} />
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
-                <SortableHeader label="Valor" field="valor_total" sorting={sorting} onSort={onSort} />
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Número da Nota" field="numero" sorting={sorting} onSort={onSort} />
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Valor" field="total_value" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data de Identificação" field="identified_date" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data Inicio Processamento" field="processing_started_date" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Data de Escrituração" field="escriturada_date" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 <SortableHeader label="Status" field="status" sorting={sorting} onSort={onSort} />
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 Detalhes
               </TableHead>
-              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600">
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
+                <SortableHeader label="Tentativas" field="attempts" sorting={sorting} onSort={onSort} />
+              </TableHead>
+              <TableHead className="py-4 px-6 text-sm font-medium text-gray-600 sticky top-0 bg-white z-10">
                 Ações
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="bg-white">
-            {renderTableContent()}
-          </TableBody>
+
+          <TableBody className="bg-white">{renderTableContent()}</TableBody>
         </Table>
       </div>
     );
   }
 );
 
-// Adicionar um displayName ao componente
-NotasTable.displayName = "NotasTable"; 
+NotasTable.displayName = "NotasTable";
