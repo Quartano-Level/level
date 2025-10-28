@@ -83,7 +83,7 @@ export function NotasPage() {
     IDENTIFIED: { label: 'Notas identificadas', Icon: CheckCircle },
     SAVED: { label: 'Notas salvas', Icon: CheckCircle },
     ESCRITURADA: { label: 'Notas escrituradas', Icon: CheckCircle },
-    COMPLETED: { label: 'Notas completas', Icon: CheckCircle },
+    FINALIZADA: { label: 'Notas finalizadas', Icon: CheckCircle },
     ERROR: { label: 'Notas com erro', Icon: AlertTriangle },
   };
   

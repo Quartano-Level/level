@@ -75,5 +75,5 @@ export enum NotaStatusEnum {
     IDENTIFIED = 'IDENTIFIED',
     SAVED = 'SAVED',
     ESCRITURADA = 'ESCRITURADA',
-    COMPLETA = 'COMPLETED',
+    COMPLETA = 'FINALIZADA',
 }

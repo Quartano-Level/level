@@ -85,7 +85,7 @@ const RowActions = ({
       </TooltipProvider>
     )}
 
-    {nota.status !== 'COMPLETED' && (
+    {nota.status !== 'FINALIZADA' && (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -95,6 +95,7 @@ const RowActions = ({
               onClick={() => onCorrect(nota)}
               disabled={isReprocessing}
               className="text-xs bg-green-500 text-white hover:bg-green-600 border-green-500 hover:border-green-600 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+
             >
               {isReprocessing ? (
                 <span className="flex items-center gap-2">
@@ -183,6 +184,7 @@ const EmptyState = () => (
  */
 export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
   ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting, reprocessingNotaId }, ref) => {
+
     useImperativeHandle(ref, () => ({
       handleFilterChange: () => {},
       handleSearch: () => {}

@@ -75,10 +75,10 @@ export const HistoricoTable = forwardRef<HistoricoTableRef, HistoricoTableProps>
       let label = "";
       
       switch(status) {
-        case "completed":
+        case "finalizada":
           bgClass = "bg-green-100";
           textClass = "text-green-800";
-          label = "Completa";
+          label = "Finalizada";
           break;
         case "recusado":
         case "reprovado":
