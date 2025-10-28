@@ -298,7 +298,7 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
           <TableBody className="bg-white">{renderTableContent()}</TableBody>
         </Table>
       </div>
-    );
+    )
   }
 );
 
