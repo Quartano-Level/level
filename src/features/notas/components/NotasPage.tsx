@@ -83,17 +83,6 @@ export function NotasPage() {
     IDENTIFIED: { label: 'Notas identificadas', Icon: CheckCircle },
     SAVED: { label: 'Notas salvas', Icon: CheckCircle },
     ESCRITURADA: { label: 'Notas escrituradas', Icon: CheckCircle },
-    COMPLETED: { label: 'Notas completas', Icon: CheckCircle },
-    ERROR: { label: 'Notas com erro', Icon: AlertTriangle },
-  };
-
-  const countersDisplayMap: Record<string, { label: string; Icon: any }> = {
-    TOTAL: { label: 'Todas as notas', Icon: TextSearch },
-    PENDING: { label: 'Notas pendentes', Icon: TextSearch },
-    PROCESSING: { label: 'Notas em processamento', Icon: FileClock },
-    IDENTIFIED: { label: 'Notas identificadas', Icon: CheckCircle },
-    SAVED: { label: 'Notas salvas', Icon: CheckCircle },
-    ESCRITURADA: { label: 'Notas escrituradas', Icon: CheckCircle },
     FINALIZADA: { label: 'Notas finalizadas', Icon: CheckCircle },
     ERROR: { label: 'Notas com erro', Icon: AlertTriangle },
   };
