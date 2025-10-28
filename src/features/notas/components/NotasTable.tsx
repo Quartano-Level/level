@@ -94,7 +94,7 @@ const RowActions = ({
               size="sm"
               onClick={() => onCorrect(nota)}
               disabled={isReprocessing}
-              className="text-xs bg-orange-500 text-white hover:bg-orange-600 border-green-500 hover:border-green-600 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500 hover:border-orange-600 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 
             >
               {isReprocessing ? (
