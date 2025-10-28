@@ -183,7 +183,6 @@ const EmptyState = () => (
  * Componente de tabela para notas fiscais
  */
 export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
-  ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting }, ref) => {
   ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting, reprocessingNotaId }, ref) => {
 
     useImperativeHandle(ref, () => ({
