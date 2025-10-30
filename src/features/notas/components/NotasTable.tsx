@@ -23,7 +23,7 @@ interface NotasTableProps {
   notas: NotaFiscal[];
   loading: boolean;
   onAccessPDF: (nota: NotaFiscal) => void;
-  onCorrect: (nota: NotaFiscal) => void;
+  onRequestReprocess: (nota: NotaFiscal) => void;
   onSort: (field: keyof NotaFiscal) => void;
   sorting: {
     field: keyof NotaFiscal | null;
@@ -55,12 +55,12 @@ const StatusBadge = ({ status }: { status: string }) => {
 const RowActions = ({ 
   nota, 
   onAccessPDF, 
-  onCorrect,
+  onRequestReprocess,
   isReprocessing
 }: { 
   nota: NotaFiscal; 
   onAccessPDF: (nota: NotaFiscal) => void;
-  onCorrect: (nota: NotaFiscal) => void;
+  onRequestReprocess: (nota: NotaFiscal) => void;
   isReprocessing: boolean ;
 }) => (
   <div className="flex space-x-2">
@@ -92,7 +92,7 @@ const RowActions = ({
             <Button
               variant="default"
               size="sm"
-              onClick={() => onCorrect(nota)}
+              onClick={() => onRequestReprocess(nota)}
               disabled={isReprocessing}
               className="text-xs bg-green-500 text-white hover:bg-green-600 border-green-500 hover:border-green-600 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 
@@ -183,7 +183,7 @@ const EmptyState = () => (
  * Componente de tabela para notas fiscais
  */
 export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
-  ({ notas, loading, onAccessPDF, onCorrect, onSort, sorting, reprocessingNotaId }, ref) => {
+  ({ notas, loading, onAccessPDF, onRequestReprocess, onSort, sorting, reprocessingNotaId }, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleFilterChange: () => {},
@@ -240,7 +240,7 @@ export const NotasTable = forwardRef<NotasTableRef, NotasTableProps>(
                   {nota.attempts || 1}
                 </TableCell>
                 <TableCell className="py-4 px-6 text-sm text-gray-500 h-[52px]">
-                  <RowActions nota={nota} onAccessPDF={onAccessPDF} onCorrect={onCorrect} isReprocessing={reprocessingNotaId === nota.numero.toString()} />
+                  <RowActions nota={nota} onAccessPDF={onAccessPDF} onRequestReprocess={onRequestReprocess} isReprocessing={reprocessingNotaId === nota.numero.toString()} />
                 </TableCell>
               </TableRow>
             );

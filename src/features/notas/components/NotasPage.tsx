@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog"
 import { Label } from "@/shared/components/ui/label"
 import { Textarea } from "@/shared/components/ui/textarea"
+import { formatCurrency } from "../utils/notasUtils"
 import { Pagination } from "@/shared/components/common/pagination"
 import { NotaFiscal, NotaStatusEnum } from '../types'
 import { useNotas } from "../hooks/useNotas"
@@ -63,17 +64,49 @@ export function NotasPage() {
   };
   
   // Função para reprocessar a nota fiscal
-  const handleReprocessNota = async (nota: NotaFiscal) => {
+  const handleReprocessNota = async (nota: NotaFiscal, motivo: string = "Solicitação de reprocessamento", processo?: string, observacoes?: string) => {
     // Prevenir múltiplos cliques
     if (reprocessingNota) return;
     
     setReprocessingNota(nota.numero.toString());
     
     try {
-      await handleCorrectNota(nota, "Solicitação de reprocessamento");
+      await handleCorrectNota(nota, motivo, processo, observacoes);
     } finally {
       setReprocessingNota(null);
     }
+  };
+
+  // Modal state for reprocessing
+  const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
+  const [selectedNota, setSelectedNota] = useState<NotaFiscal | null>(null);
+  const [motivo, setMotivo] = useState<string>("Solicitação de reprocessamento");
+  const [observacoes, setObservacoes] = useState<string>("");
+  const [processo, setProcesso] = useState<string>("");
+
+  // Open modal handler invoked from table
+  const handleRequestReprocess = (nota: NotaFiscal) => {
+    setSelectedNota(nota);
+    setMotivo("Solicitação de reprocessamento");
+    setObservacoes(nota.obs && nota.obs !== '-' ? nota.obs : "");
+    // Prefill processo from nota.info (fallback) or empty
+    setProcesso((nota as any).processo ?? nota.info ?? "");
+    setReprocessModalOpen(true);
+  };
+
+  // Confirm reprocess from modal
+  const handleConfirmReprocess = async () => {
+    if (!selectedNota) return;
+
+    // Close modal and trigger actual reprocess
+    setReprocessModalOpen(false);
+
+  // Send motivo + processo + observacoes to the API
+  await handleReprocessNota(selectedNota, motivo, processo, observacoes);
+    // Reset selection
+    setSelectedNota(null);
+    setMotivo("Solicitação de reprocessamento");
+    setObservacoes("");
   };
 
   const countersDisplayMap: Record<string, { label: string; Icon: any }> = {
@@ -189,7 +222,7 @@ export function NotasPage() {
               notas={notas || []}
               loading={loading}
               onAccessPDF={handleAccessPDF}
-              onCorrect={handleReprocessNota}
+              onRequestReprocess={handleRequestReprocess}
               onSort={handleSort}
               sorting={sorting}
               reprocessingNotaId={reprocessingNota}
@@ -212,6 +245,72 @@ export function NotasPage() {
              </div>
            )}
         </div>
+
+        {/* Reprocess modal */}
+        <Dialog open={reprocessModalOpen} onOpenChange={setReprocessModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reprocessar nota {selectedNota?.numero}</DialogTitle>
+            </DialogHeader>
+
+            <div className="grid gap-4 max-h-[60vh] overflow-y-auto">
+              {/* Motivo editável (mantém comportamento atual) */}
+              <div>
+                <Label>Motivo</Label>
+                <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+              </div>
+
+              <div>
+                <Label>Processo</Label>
+                <Input value={processo} onChange={(e) => setProcesso(e.target.value)} placeholder="Informe o processo" />
+              </div>
+
+              {/* Mostrar todas as informações da nota em um grid somente leitura */}
+              {selectedNota && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Object.entries(selectedNota)
+                    .filter(([key]) => key !== 'processo' && key !== 'info')
+                    .map(([key, value]) => {
+                    // format values
+                    let display = value as any;
+
+                    if (key === 'total_value' && typeof value === 'number') {
+                      display = formatCurrency(value as number);
+                    }
+
+                    if (typeof value === 'string' && /T\d{2}:\d{2}:\d{2}/.test(value)) {
+                      // likely ISO date string
+                      try {
+                        const d = new Date(value as string);
+                        display = d.toLocaleString();
+                      } catch (e) {
+                        // leave as is
+                      }
+                    }
+
+                    if (value === null || value === undefined || value === '') {
+                      display = '-';
+                    }
+
+                    return (
+                      <div key={key} className="flex flex-col p-2 border rounded bg-muted">
+                        <span className="text-xs text-gray-500 font-medium">{key}</span>
+                        <span className="text-sm text-gray-800 break-words">{String(display)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setReprocessModalOpen(false)}>Cancelar</Button>
+                <Button onClick={handleConfirmReprocess} disabled={reprocessingNota !== null}>Confirmar</Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
 
           </div>
