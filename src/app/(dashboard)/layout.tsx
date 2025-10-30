@@ -11,7 +11,7 @@ export default function LevelLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex">
         <Sidebar />
-        <main className="flex-1">
+    <main className="flex-1 h-screen overflow-auto">
             {children}
         </main>
         <Toaster position="top-right" />

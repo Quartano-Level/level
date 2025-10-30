@@ -88,12 +88,12 @@ export function NotasPage() {
   };
   
   return (
-    <div className="w-full flex flex-col h-screen pt-12 pl-6 pr-16 pb-10 gap-6 overflow-hidden">
-      <div className="flex flex-col gap-3 flex-1 overflow-hidden">
+  <div className="w-full flex flex-col min-h-0 pt-12 pl-6 pr-16 pb-10 gap-6">
+  <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden">
         <h2 className="text-2xl font-semibold text-black">
           Panorama geral
         </h2>
-        <div className="flex gap-3">
+  <div className="flex gap-3 flex-nowrap overflow-x-auto max-w-full pb-2">
             {
                 Object.entries(counters || {}).map(([statusKey, qty]) => {
                   const key = statusKey.toUpperCase() as NotaStatusEnum | 'TOTAL';
@@ -120,7 +120,7 @@ export function NotasPage() {
               }
         </div>
 
-        <div className="flex flex-col gap-2 flex-1 overflow-hidden rounded-lg">
+  <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden rounded-lg">
           <h2 className="text-xl font-medium text-secondary mx-4 mt-4">
             Notas fiscais
           </h2>
