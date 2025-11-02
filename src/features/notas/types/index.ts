@@ -77,3 +77,24 @@ export enum NotaStatusEnum {
     ESCRITURADA = 'ESCRITURADA',
     COMPLETA = 'FINALIZADA',
 }
+
+/**
+ * Nova estrutura da resposta da API de configuração de documento e conta de projeto
+ */
+export interface ContaProjeto {
+    filCod: number;
+    gcdCod: number;
+    prjCod: number;
+    prjDesNome: string;
+    ctpCod: number;
+    ctpDesNome: string;
+    [key: string]: any;
+}
+
+export interface ConfigDocumento {
+    gcdCod: number;
+    gcdDesNome: string;
+    contas_de_projeto: ContaProjeto[];
+}
+
+export type ConfigDocContaProjetoResponse = ConfigDocumento[];

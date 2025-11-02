@@ -335,14 +335,30 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
     }, [getAuthToken]);
     
     // Função para reprocessar uma nota
-    const handleCorrectNota = useCallback(async (nota: NotaFiscal, motivo: string) => {
+    // agora aceita motivo, processo, observacoes, config_doc, conta_de_projeto e gcdDesNome
+    const handleCorrectNota = useCallback(async (
+      nota: NotaFiscal, 
+      motivo: string, 
+      processo?: string, 
+      observacoes?: string,
+      configDocCod?: number,
+      contaProjetoCod?: number,
+      gcdDesNome?: string
+    ) => {
         try {
             const headers = {
                 'Content-Type': 'application/json',
       };
 
+      const body: Record<string, any> = { motivo };
+      if (processo !== undefined && processo !== '') body.processo = processo;
+      if (observacoes !== undefined) body.observacoes = observacoes;
+      if (configDocCod !== undefined && configDocCod !== null) body.config_doc = configDocCod;
+      if (contaProjetoCod !== undefined && contaProjetoCod !== null) body.conta_de_projeto = contaProjetoCod;
+      if (gcdDesNome !== undefined && gcdDesNome !== null && gcdDesNome !== '') body.gcdDesNome = gcdDesNome;
+
       await axios.post(`${REPROCESS_API_URL}/${nota.numero}/retry`,
-            { motivo },
+            body,
             { headers }
       );
 

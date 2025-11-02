@@ -1,18 +1,15 @@
 'use client'
 
-import { Button } from "@/shared/components/ui/button"
 import { Card } from "@/shared/components/ui/card"
 import { Input } from "@/shared/components/ui/input"
 import { useState } from "react"
 import { AlertTriangle, CheckCircle, ChevronDown, FileClock, Search, TextSearch } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog"
-import { Label } from "@/shared/components/ui/label"
-import { Textarea } from "@/shared/components/ui/textarea"
 import { Pagination } from "@/shared/components/common/pagination"
 import { NotaFiscal, NotaStatusEnum } from '../types'
 import { useNotas } from "../hooks/useNotas"
 import { NotasTable } from "./NotasTable"
+import { ReprocessModal } from "./ReprocessModal"
 
 /**
  * Componente principal da página de notas fiscais
@@ -63,17 +60,56 @@ export function NotasPage() {
   };
   
   // Função para reprocessar a nota fiscal
-  const handleReprocessNota = async (nota: NotaFiscal) => {
+  const handleReprocessNota = async (
+    nota: NotaFiscal, 
+    motivo: string = "Solicitação de reprocessamento", 
+    processo?: string, 
+    observacoes?: string,
+    configDocCod?: number,
+    contaProjetoCod?: number,
+    gcdDesNome?: string
+  ) => {
     // Prevenir múltiplos cliques
     if (reprocessingNota) return;
     
     setReprocessingNota(nota.numero.toString());
     
     try {
-      await handleCorrectNota(nota, "Solicitação de reprocessamento");
+      await handleCorrectNota(nota, motivo, processo, observacoes, configDocCod, contaProjetoCod, gcdDesNome);
     } finally {
       setReprocessingNota(null);
     }
+  };
+
+  // Modal state for reprocessing
+  const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
+  const [selectedNota, setSelectedNota] = useState<NotaFiscal | null>(null);
+  const [motivo, setMotivo] = useState<string>("Solicitação de reprocessamento");
+  const [processo, setProcesso] = useState<string>("");
+
+  // Open modal handler invoked from table
+  const handleRequestReprocess = (nota: NotaFiscal) => {
+    setSelectedNota(nota);
+    // Preencher motivo com obs exatamente como vier
+    setMotivo(nota.obs || "Solicitação de reprocessamento");
+    // Preencher processo exatamente como vier (mesmo caminho que nota.numero)
+    setProcesso((nota as any).processo || "");
+    setReprocessModalOpen(true);
+  };
+
+  // Confirm reprocess from modal
+  const handleConfirmReprocess = async (configDocCod?: number, contaProjetoCod?: number, gcdDesNome?: string) => {
+    if (!selectedNota) return;
+
+    // Close modal and trigger actual reprocess
+    setReprocessModalOpen(false);
+
+    // Send motivo + processo + config_doc + conta_de_projeto + gcdDesNome to the API
+    await handleReprocessNota(selectedNota, motivo, processo, undefined, configDocCod, contaProjetoCod, gcdDesNome);
+    // Reset selection
+    setSelectedNota(null);
+    setMotivo("Solicitação de reprocessamento");
+    setProcesso("");
   };
 
   const countersDisplayMap: Record<string, { label: string; Icon: any }> = {
@@ -179,43 +215,53 @@ export function NotasPage() {
             </div>
           </div>
 
-          {/* 1. Este container vira uma COLUNA FLEX */}
-        <div className="flex-1 bg-white rounded-lg relative flex flex-col overflow-hidden">
-          
-          {/* 2. Criamos um WRAPPER para a tabela que vai crescer e rolar */}
-          <div className="flex-1 overflow-y-auto">
-            <NotasTable
-              ref={tableRef}
-              notas={notas || []}
-              loading={loading}
-              onAccessPDF={handleAccessPDF}
-              onCorrect={handleReprocessNota}
-              onSort={handleSort}
-              sorting={sorting}
-              reprocessingNotaId={reprocessingNota}
-            />
-          </div>
-          
-          {/* 3. A paginação fica FORA do wrapper de scroll, como um rodapé */}
-          {!loading && notas && 
-           Array.isArray(notas) && 
-           notas.length > 0 && 
-           !(notas.length === 1 && Object.keys(notas[0]).length === 0) && 
-           totalPages > 1 && (
-             <div className="mt-2 mb-4 bg-white border-t border-gray-100 shadow-[0_-5px_5px_-5px_rgba(0,0,0,0.1)]">
-               <Pagination
-                 currentPage={page}
-                 totalPages={totalPages}
-                 onPageChange={handlePageChange}
-                 loading={loading}
-               />
-             </div>
-           )}
-        </div>
-
-
+          {/* Container da tabela */}
+          <div className="flex-1 bg-white rounded-lg relative flex flex-col overflow-hidden">
+            {/* Wrapper para a tabela que vai crescer e rolar */}
+            <div className="flex-1 overflow-y-auto">
+              <NotasTable
+                ref={tableRef}
+                notas={notas || []}
+                loading={loading}
+                onAccessPDF={handleAccessPDF}
+                onRequestReprocess={handleRequestReprocess}
+                onSort={handleSort}
+                sorting={sorting}
+                reprocessingNotaId={reprocessingNota}
+              />
+            </div>
+            
+            {/* Paginação fica FORA do wrapper de scroll, como um rodapé */}
+            {!loading && notas && 
+             Array.isArray(notas) && 
+             notas.length > 0 && 
+             !(notas.length === 1 && Object.keys(notas[0]).length === 0) && 
+             totalPages > 1 && (
+               <div className="mt-2 mb-4 bg-white border-t border-gray-100 shadow-[0_-5px_5px_-5px_rgba(0,0,0,0.1)]">
+                 <Pagination
+                   currentPage={page}
+                   totalPages={totalPages}
+                   onPageChange={handlePageChange}
+                   loading={loading}
+                 />
+               </div>
+             )}
           </div>
         </div>
+      </div>
+
+      {/* Modal de reprocessamento */}
+      <ReprocessModal
+        open={reprocessModalOpen}
+        onOpenChange={setReprocessModalOpen}
+        nota={selectedNota}
+        motivo={motivo}
+        processo={processo}
+        onMotivoChange={setMotivo}
+        onProcessoChange={setProcesso}
+        onConfirm={handleConfirmReprocess}
+        isLoading={reprocessingNota !== null}
+      />
     </div>
   );
 } 
