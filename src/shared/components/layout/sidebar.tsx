@@ -4,7 +4,7 @@ import { FileText, FolderClock, LogOut, Settings2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 import { Separator } from "@/shared/components/ui/separator"
 import NavItem from "@/shared/components/ui/nav-item"
@@ -20,8 +20,15 @@ const NavItems = [
 export default function Sidebar() {
     const pathname = usePathname() || '/'
     const [userName, setUserName] = useState<string>("")
+    
+    // Ref para controlar se a busca de dados do usuário já foi executada
+    // Evita busca duplicada quando componente remonta
+    const hasFetchedUserRef = useRef(false);
 
     useEffect(() => {
+        // Evitar busca duplicada quando componente remonta
+        if (hasFetchedUserRef.current) return;
+        
         const fetchUserData = async () => {
             try {
                 const supabase = createBrowserSupabaseClient()
@@ -38,6 +45,8 @@ export default function Sidebar() {
                     const firstName = fullName.split(' ')[0]
                     setUserName(firstName)
                 }
+                
+                hasFetchedUserRef.current = true;
             } catch (error) {
                 console.error("Erro ao buscar dados do usuário:", error)
             }

@@ -42,6 +42,10 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
     const cancelTokenRef = useRef<CancelTokenSource | null>(null);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
+    // Ref para controlar se a busca inicial já foi executada
+    // Evita refresh desnecessário quando componente remonta
+    const hasInitializedRef = useRef(false);
+    
     // Obter o token de autenticação e estado de carregamento da sessão
     const { getAuthToken, loading: authLoading } = useAuth();
 
@@ -180,14 +184,41 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
         }
     }, [fetchNotasFromAPI, paginateData, filterDataLocally]);
 
+    // Ref para manter referência atualizada de filterNotas
+    // Permite usar a função sem incluí-la nas dependências do useEffect
+    const filterNotasRef = useRef(filterNotas);
+    
+    // Atualizar ref sempre que filterNotas mudar
+    useEffect(() => {
+        filterNotasRef.current = filterNotas;
+    }, [filterNotas]);
+
+    // Resetar flag de inicialização quando parâmetros iniciais mudarem
+    useEffect(() => {
+        hasInitializedRef.current = false;
+    }, [initialParams.limit]);
+
+    // Resetar flag quando autenticação mudar de loading para ready
+    useEffect(() => {
+        if (!authLoading) {
+            hasInitializedRef.current = false;
+        }
+    }, [authLoading]);
+
     // Efeito para carregar as notas iniciais após a autenticação estar pronta
     useEffect(() => {
-        if (authLoading) return; // aguardar sessão pronta
-
-        filterNotas({
+        // Aguardar autenticação estar pronta
+        if (authLoading) return;
+        
+        // Evitar busca duplicada quando componente remonta sem mudança de parâmetros
+        if (hasInitializedRef.current) return;
+        
+        filterNotasRef.current({
             status: NotaStatusEnum.COMPLETA,
             limit: initialParams.limit || 9
         });
+        
+        hasInitializedRef.current = true;
 
         return () => {
             if (cancelTokenRef.current) {
@@ -197,7 +228,7 @@ export function useHistoricoNotas(initialParams: NotasParams = {}) {
                 clearTimeout(debounceTimeoutRef.current);
             }
         };
-    }, [authLoading, filterNotas, initialParams.limit]);
+    }, [authLoading, initialParams.limit]); // Removido filterNotas das dependências
 
     // *** CORRIGIDO: handleSearch igual ao useNotasFiscais ***
     const handleSearch = useCallback((term: string) => {
