@@ -234,7 +234,9 @@ export function useConfiguracoes() {
   useEffect(() => {
     fetchMembers(currentPage);
     fetchCurrentUser();
-  }, [currentPage, fetchMembers, fetchCurrentUser]);
+  }, [currentPage]); // Removido fetchMembers e fetchCurrentUser das dependências
+  // As funções são estáveis (fetchMembers depende apenas de itemsPerPage constante,
+  // fetchCurrentUser não tem dependências), então é seguro removê-las
 
   return {
     // Estado do usuário e email

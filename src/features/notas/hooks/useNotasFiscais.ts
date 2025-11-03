@@ -48,6 +48,10 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
 
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
+    // Ref para controlar se a busca inicial já foi executada
+    // Evita refresh desnecessário quando componente remonta
+    const hasInitializedRef = useRef(false);
+    
     // Obter o token de autenticação
     const { getAuthToken } = useAuth();
 
@@ -189,19 +193,39 @@ export function useNotasFiscais(initialParams: NotasParams = {}) {
         }
     }, [fetchNotasFromAPI, fetchCounters, paginateData]);
 
+    // Ref para manter referência atualizada de filterNotas
+    // Permite usar a função sem incluí-la nas dependências do useEffect
+    const filterNotasRef = useRef(filterNotas);
+    
+    // Atualizar ref sempre que filterNotas mudar
+    useEffect(() => {
+        filterNotasRef.current = filterNotas;
+    }, [filterNotas]);
+
+    // Resetar flag de inicialização quando parâmetros iniciais mudarem
+    // Isso permite que uma nova busca aconteça quando necessário
+    useEffect(() => {
+        hasInitializedRef.current = false;
+    }, [initialParams.limit, initialParams.status]);
+
     // Efeito para carregar as notas iniciais
     useEffect(() => {
-        filterNotas({
+        // Evitar busca duplicada quando componente remonta sem mudança de parâmetros
+        if (hasInitializedRef.current) return;
+        
+        filterNotasRef.current({
             status: initialParams.status,
             limit: initialParams.limit || 7
         });
+        
+        hasInitializedRef.current = true;
         
         return () => {
             if (cancelTokenRef.current) {
                 cancelTokenRef.current.cancel('Componente desmontado');
             }
         };
-    }, [initialParams.limit, initialParams.status, filterNotas]);
+    }, [initialParams.limit, initialParams.status]); // Removido filterNotas das dependências
     
     // Função para lidar com a mudança de filtro
     const handleFilterChange = useCallback((filter: NotaStatusEnum | 'TOTAL') => {
