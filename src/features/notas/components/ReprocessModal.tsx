@@ -52,6 +52,7 @@ export function ReprocessModal({
       setShowConfigDoc(false);
       setSelectedConfigDocCod(null);
       setSelectedContaProjetoCod(null);
+      setConfigDocs([]); // Resetar também os dados carregados
     }
   }, [open]);
 
@@ -77,11 +78,27 @@ export function ReprocessModal({
         { headers }
       );
 
-      // A resposta agora já vem no formato correto, não precisa agrupar
-      setConfigDocs(response.data);
-      setShowConfigDoc(true);
+      // Garantir que response.data seja sempre um array
+      // A API pode retornar um objeto com a propriedade data, ou diretamente um array
+      let data = response.data;
+      
+      // Se for um objeto com propriedade data, usar ela
+      if (data && typeof data === 'object' && !Array.isArray(data) && 'data' in data) {
+        data = (data as any).data;
+      }
+      
+      // Validar que é um array antes de definir
+      if (Array.isArray(data)) {
+        setConfigDocs(data);
+        setShowConfigDoc(true);
+      } else {
+        console.error('Erro: resposta da API não é um array', data);
+        setConfigDocs([]);
+        setShowConfigDoc(true);
+      }
     } catch (error) {
       console.error('Erro ao buscar configurações de documento:', error);
+      setConfigDocs([]);
     } finally {
       setLoadingConfigDocs(false);
     }
@@ -98,8 +115,12 @@ export function ReprocessModal({
     }
   };
 
-  const selectedConfigDoc = configDocs.find(cd => cd.gcdCod === selectedConfigDocCod);
-  const availableContasProjeto = selectedConfigDoc?.contas_de_projeto || [];
+  // Garantir que configDocs seja sempre um array antes de usar .find()
+  const safeConfigDocs = Array.isArray(configDocs) ? configDocs : [];
+  const selectedConfigDoc = safeConfigDocs.find(cd => cd.gcdCod === selectedConfigDocCod);
+  const availableContasProjeto = Array.isArray(selectedConfigDoc?.contas_de_projeto) 
+    ? selectedConfigDoc.contas_de_projeto 
+    : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -149,62 +170,88 @@ export function ReprocessModal({
             {/* Seção de Configuração de Documento e Conta de Projeto */}
             {showConfigDoc && (
               <div className="space-y-6 p-4 border rounded-lg bg-muted/50">
-                <div className="space-y-3">
-                  <Label htmlFor="configDoc" className="text-sm font-medium">Configuração de Documento</Label>
-                  <Select
-                    value={selectedConfigDocCod?.toString() || ""}
-                    onValueChange={(value) => {
-                      setSelectedConfigDocCod(parseInt(value));
-                      setSelectedContaProjetoCod(null); // Resetar conta de projeto ao mudar config
-                    }}
-                    disabled={isLoading}
-                  >
-                    <SelectTrigger id="configDoc" className="w-full h-10">
-                      <SelectValue placeholder="Selecione a configuração de documento" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border shadow-lg">
-                      {configDocs.map((configDoc) => {
-                        const displayName = configDoc.gcdDesNome || `Configuração ${configDoc.gcdCod}`;
-                        // Pegar o primeiro filCod das contas de projeto para exibir
-                        const filCod = configDoc.contas_de_projeto[0]?.filCod || '-';
-                        return (
-                          <SelectItem 
-                            key={configDoc.gcdCod} 
-                            value={configDoc.gcdCod.toString()} 
-                            className="bg-white hover:bg-gray-100"
-                            textValue={displayName}
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-medium">{displayName}</span>
-                              <span className="text-xs text-gray-500">Cód. Filial: {filCod}</span>
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedConfigDocCod && (
-                  <div className="space-y-3">
-                    <Label htmlFor="contaProjeto" className="text-sm font-medium">Conta de Projeto</Label>
-                    <Select
-                      value={selectedContaProjetoCod?.toString() || ""}
-                      onValueChange={(value) => setSelectedContaProjetoCod(parseInt(value))}
-                      disabled={isLoading}
-                    >
-                      <SelectTrigger id="contaProjeto" className="w-full h-10">
-                        <SelectValue placeholder="Selecione a conta de projeto" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border shadow-lg">
-                        {availableContasProjeto.map((conta) => (
-                          <SelectItem key={conta.ctpCod} value={conta.ctpCod.toString()} className="bg-white hover:bg-gray-100">
-                            {conta.ctpDesNome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {loadingConfigDocs ? (
+                  <div className="flex items-center justify-center py-8">
+                    <span className="text-sm text-gray-500">Carregando configurações...</span>
                   </div>
+                ) : safeConfigDocs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <span className="text-sm text-gray-500 font-medium mb-1">
+                      Nenhuma configuração de documento disponível
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      Não há configurações cadastradas para este fornecedor
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3">
+                      <Label htmlFor="configDoc" className="text-sm font-medium">Configuração de Documento</Label>
+                      <Select
+                        value={selectedConfigDocCod?.toString() || ""}
+                        onValueChange={(value) => {
+                          setSelectedConfigDocCod(parseInt(value));
+                          setSelectedContaProjetoCod(null); // Resetar conta de projeto ao mudar config
+                        }}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger id="configDoc" className="w-full h-10">
+                          <SelectValue placeholder="Selecione a configuração de documento" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border shadow-lg">
+                          {safeConfigDocs.map((configDoc) => {
+                            const displayName = configDoc.gcdDesNome || `Configuração ${configDoc.gcdCod}`;
+                            // Pegar o primeiro filCod das contas de projeto para exibir
+                            const contasProjeto = Array.isArray(configDoc.contas_de_projeto) 
+                              ? configDoc.contas_de_projeto 
+                              : [];
+                            const filCod = contasProjeto[0]?.filCod || '-';
+                            return (
+                              <SelectItem 
+                                key={configDoc.gcdCod} 
+                                value={configDoc.gcdCod.toString()} 
+                                className="bg-white hover:bg-gray-100"
+                                textValue={displayName}
+                              >
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{displayName}</span>
+                                  <span className="text-xs text-gray-500">Cód. Filial: {filCod}</span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {selectedConfigDocCod && (
+                      <div className="space-y-3">
+                        <Label htmlFor="contaProjeto" className="text-sm font-medium">Conta de Projeto</Label>
+                        <Select
+                          value={selectedContaProjetoCod?.toString() || ""}
+                          onValueChange={(value) => setSelectedContaProjetoCod(parseInt(value))}
+                          disabled={isLoading}
+                        >
+                          <SelectTrigger id="contaProjeto" className="w-full h-10">
+                            <SelectValue placeholder="Selecione a conta de projeto" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border shadow-lg">
+                            {availableContasProjeto.length === 0 ? (
+                              <div className="px-2 py-4 text-sm text-gray-500 text-center">
+                                Nenhuma conta de projeto disponível
+                              </div>
+                            ) : (
+                              availableContasProjeto.map((conta) => (
+                                <SelectItem key={conta.ctpCod} value={conta.ctpCod.toString()} className="bg-white hover:bg-gray-100">
+                                  {conta.ctpDesNome}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -265,7 +312,7 @@ export function ReprocessModal({
             </Button>
             <Button 
               onClick={() => {
-                const selected = configDocs.find(cd => cd.gcdCod === selectedConfigDocCod);
+                const selected = safeConfigDocs.find(cd => cd.gcdCod === selectedConfigDocCod);
                 onConfirm(
                   selectedConfigDocCod || undefined, 
                   selectedContaProjetoCod || undefined,
