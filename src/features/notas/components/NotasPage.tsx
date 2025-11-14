@@ -3,19 +3,16 @@
 import { Card } from "@/shared/components/ui/card"
 import { Input } from "@/shared/components/ui/input"
 import { useState } from "react"
-import { AlertTriangle, CheckCircle, ChevronDown, FileClock, Search, TextSearch } from "lucide-react"
+import { AlertTriangle, CheckCircle, ChevronDown, FileClock, Search, TextSearch, Calendar, X } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
 import { Pagination } from "@/shared/components/common/pagination"
 import { NotaFiscal, NotaStatusEnum } from '../types'
 import { useNotas } from "../hooks/useNotas"
 import { NotasTable } from "./NotasTable"
 import { ReprocessModal } from "./ReprocessModal"
+import { Button } from "@/shared/components/ui/button"
 
-/**
- * Componente principal da página de notas fiscais
- */
 export function NotasPage() {
-  // Utilizar o hook para gerenciar o estado
   const {
     notas,
     counters,
@@ -25,12 +22,18 @@ export function NotasPage() {
     tableRef,
     page,
     totalPages,
+    startDate,
+    endDate,
     handleFilterChange,
     handleSearch,
     handlePageChange,
     handleSort,
     handleAccessPDF,
     handleCorrectNota,
+    handleStartDateChange,
+    handleEndDateChange,
+    handleApplyDateFilter,
+    handleClearDateFilter,
     sorting
   } = useNotas();
 
@@ -40,7 +43,6 @@ export function NotasPage() {
   const handleSortChange = (value: string) => {
     setSortField(value);
     
-    // Mapeamento dos valores do select para os campos reais da interface NotaFiscal
     const fieldMapping: Record<string, keyof NotaFiscal> = {
       "data_da_nota": "emission_date",
       "fornecedor": "filCnpj",
@@ -59,7 +61,6 @@ export function NotasPage() {
     }
   };
   
-  // Função para reprocessar a nota fiscal
   const handleReprocessNota = async (
     nota: NotaFiscal, 
     motivo: string = "Solicitação de reprocessamento", 
@@ -69,7 +70,6 @@ export function NotasPage() {
     contaProjetoCod?: number,
     gcdDesNome?: string
   ) => {
-    // Prevenir múltiplos cliques
     if (reprocessingNota) return;
     
     setReprocessingNota(nota.numero.toString());
@@ -81,32 +81,24 @@ export function NotasPage() {
     }
   };
 
-  // Modal state for reprocessing
   const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
   const [selectedNota, setSelectedNota] = useState<NotaFiscal | null>(null);
   const [motivo, setMotivo] = useState<string>("Solicitação de reprocessamento");
   const [processo, setProcesso] = useState<string>("");
 
-  // Open modal handler invoked from table
   const handleRequestReprocess = (nota: NotaFiscal) => {
     setSelectedNota(nota);
-    // Preencher motivo com obs exatamente como vier
     setMotivo(nota.obs || "Solicitação de reprocessamento");
-    // Preencher processo exatamente como vier (mesmo caminho que nota.numero)
     setProcesso((nota as any).processo || "");
     setReprocessModalOpen(true);
   };
 
-  // Confirm reprocess from modal
   const handleConfirmReprocess = async (configDocCod?: number, contaProjetoCod?: number, gcdDesNome?: string) => {
     if (!selectedNota) return;
 
-    // Close modal and trigger actual reprocess
     setReprocessModalOpen(false);
 
-    // Send motivo + processo + config_doc + conta_de_projeto + gcdDesNome to the API
     await handleReprocessNota(selectedNota, motivo, processo, undefined, configDocCod, contaProjetoCod, gcdDesNome);
-    // Reset selection
     setSelectedNota(null);
     setMotivo("Solicitação de reprocessamento");
     setProcesso("");
@@ -124,44 +116,44 @@ export function NotasPage() {
   };
   
   return (
-  <div className="w-full flex flex-col min-h-0 pt-12 pl-6 pr-16 pb-10 gap-6">
-  <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden">
+    <div className="w-full flex flex-col min-h-0 pt-12 pl-6 pr-16 pb-10 gap-6">
+      <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden">
         <h2 className="text-2xl font-semibold text-black">
           Panorama geral
         </h2>
-  <div className="flex gap-3 flex-nowrap overflow-x-auto max-w-full pb-2">
-            {
-                Object.entries(counters || {}).map(([statusKey, qty]) => {
-                  const key = statusKey.toUpperCase() as NotaStatusEnum | 'TOTAL';
-                  const meta = countersDisplayMap[key];
-                  const Icon = meta?.Icon;
-                  const isActive = activeFilter === key || (activeFilter === null && key === 'TOTAL');
-  
-                  return meta && (qty || key === 'TOTAL') ? (
-                    <Card
-                      key={statusKey}
-                      className={`px-5 py-3.5 flex flex-row cursor-pointer transition-colors duration-150 ${isActive ? 'bg-primary' : 'bg-white'}`}
-                      onClick={() => handleFilterChange(key)}
-                    >
-                      <div className={`${isActive ? 'bg-primary' : 'bg-primary/10'} p-3.5 rounded-lg`}> 
-                        <Icon size={22} />
-                      </div>
-                      <div className="pl-3 pr-18">
-                        <h3 className={`${isActive ? 'text-white' : 'text-secondary'} text-xl font-medium`}>{qty}</h3>
-                        <h3 className={`${isActive ? 'text-white/90' : 'text-dark-gray'} text-sm text-nowrap`}>{meta.label}</h3>
-                      </div>
-                    </Card>
-                  ) : null;
-                })
-              }
+        <div className="flex gap-3 flex-nowrap overflow-x-auto max-w-full pb-2">
+          {
+            Object.entries(counters || {}).map(([statusKey, qty]) => {
+              const key = statusKey.toUpperCase() as NotaStatusEnum | 'TOTAL';
+              const meta = countersDisplayMap[key];
+              const Icon = meta?.Icon;
+              const isActive = activeFilter === key || (activeFilter === null && key === 'TOTAL');
+
+              return meta && (qty || key === 'TOTAL') ? (
+                <Card
+                  key={statusKey}
+                  className={`px-5 py-3.5 flex flex-row cursor-pointer transition-colors duration-150 ${isActive ? 'bg-primary' : 'bg-white'}`}
+                  onClick={() => handleFilterChange(key)}
+                >
+                  <div className={`${isActive ? 'bg-primary' : 'bg-primary/10'} p-3.5 rounded-lg`}> 
+                    <Icon size={22} />
+                  </div>
+                  <div className="pl-3 pr-18">
+                    <h3 className={`${isActive ? 'text-white' : 'text-secondary'} text-xl font-medium`}>{qty}</h3>
+                    <h3 className={`${isActive ? 'text-white/90' : 'text-dark-gray'} text-sm text-nowrap`}>{meta.label}</h3>
+                  </div>
+                </Card>
+              ) : null;
+            })
+          }
         </div>
 
-  <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden rounded-lg">
+        <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden rounded-lg">
           <h2 className="text-xl font-medium text-secondary mx-4 mt-4">
             Notas fiscais
           </h2>
           <div className="flex items-center justify-between px-4 pb-4">
-            <div className="flex gap-7">
+            <div className="flex gap-3">
               <div className="relative">
                 <Search
                   size={16}
@@ -175,6 +167,53 @@ export function NotasPage() {
                   onChange={handleSearch}
                 />
               </div>
+
+              <div className="relative">
+                <Calendar
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10"
+                />
+                <Input
+                  type="date"
+                  placeholder="Data inicial"
+                  className="pl-10 w-[165px] h-9 py-5 bg-white rounded-[17px] border border-gray-200 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                />
+              </div>
+
+              <div className="relative">
+                <Calendar
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10"
+                />
+                <Input
+                  type="date"
+                  placeholder="Data final"
+                  className="pl-10 w-[165px] h-9 py-5 bg-white rounded-[17px] border border-gray-200 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={endDate}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                />
+              </div>
+
+              <Button
+                onClick={handleApplyDateFilter}
+                disabled={loading}
+                className="h-9 px-4 bg-primary text-white rounded-[17px] hover:bg-primary/90 transition-colors"
+              >
+                Filtrar
+              </Button>
+
+              {(startDate || endDate) && (
+                <Button
+                  onClick={handleClearDateFilter}
+                  disabled={loading}
+                  variant="outline"
+                  className="h-9 px-3 bg-white rounded-[17px] border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <X size={16} />
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-5 rounded-lg">
@@ -215,9 +254,7 @@ export function NotasPage() {
             </div>
           </div>
 
-          {/* Container da tabela */}
           <div className="flex-1 bg-white rounded-lg relative flex flex-col overflow-hidden">
-            {/* Wrapper para a tabela que vai crescer e rolar */}
             <div className="flex-1 overflow-y-auto">
               <NotasTable
                 ref={tableRef}
@@ -231,7 +268,6 @@ export function NotasPage() {
               />
             </div>
             
-            {/* Paginação fica FORA do wrapper de scroll, como um rodapé */}
             {!loading && notas && 
              Array.isArray(notas) && 
              notas.length > 0 && 
@@ -250,7 +286,6 @@ export function NotasPage() {
         </div>
       </div>
 
-      {/* Modal de reprocessamento */}
       <ReprocessModal
         open={reprocessModalOpen}
         onOpenChange={setReprocessModalOpen}
@@ -264,4 +299,4 @@ export function NotasPage() {
       />
     </div>
   );
-} 
+}
